@@ -1,0 +1,1 @@
+The end to end functional tests are located in this directory and can be divided according to the functionalities, requirements.

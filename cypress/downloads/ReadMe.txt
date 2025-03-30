@@ -1,0 +1,1 @@
+The downloaded files from the test executions are stored and used for verifications.
