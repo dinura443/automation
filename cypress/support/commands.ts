@@ -35,6 +35,7 @@
 //     }
 //   }
 // }
+require('cypress-downloadfile/lib/downloadFileCommand');
 
 // @ts-ignore
 Cypress.Commands.add('resolve_promise', (timeout) => {

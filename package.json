@@ -31,6 +31,7 @@
     "allure-commandline": "^2.24.1",
     "allure-service-client": "^1.0.2",
     "cypress": "^13.17.0",
+    "cypress-downloadfile": "^1.2.4",
     "cypress-file-upload": "^5.0.8",
     "cypress-multi-reporters": "^1.6.1",
     "cypress-split": "^1.20.1",
