@@ -1,7 +1,10 @@
+// cypress.config.ts
+
 import { defineConfig } from "cypress";
 import { configureAllureAdapterPlugins } from '@mmisty/cypress-allure-adapter/plugins';
 import XLSX from 'xlsx';
 import path from 'path';
+import * as fs from 'fs';
 
 export default defineConfig({
   experimentalModifyObstructiveThirdPartyCode: true,
@@ -34,20 +37,20 @@ export default defineConfig({
     defaultCommandTimeout: 3000,
     video: false,
 
-  reporter: 'cypress-multi-reporters',
-  reporterOptions: {
-    reporterEnabled: 'spec, mochawesome',
-    mochawesomeReporterOptions: {
-      reportDir: 'cypress/report/mochawesome-report',
-      reportFilename: "[datetime]-[name]-report",
-      timestamp: "isoUtcDateTime",
-      quiet: true,
-      overwrite: false,
-      html: true,
-      json: true,
+    reporter: 'cypress-multi-reporters',
+    reporterOptions: {
+      reporterEnabled: 'spec, mochawesome',
+      mochawesomeReporterOptions: {
+        reportDir: 'cypress/report/mochawesome-report',
+        reportFilename: "[datetime]-[name]-report",
+        timestamp: "isoUtcDateTime",
+        quiet: true,
+        overwrite: false,
+        html: true,
+        json: true,
+      },
     },
-  },
-    
+
     env: {
       allure: true,
       allureCleanResults: true,
@@ -59,7 +62,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       require('@cypress/grep/src/plugin')(config);
       require('cypress-terminal-report/src/installLogsPrinter')(on);
-      
+
       const reporter = configureAllureAdapterPlugins(on, config);
 
       // ===== allure context start ====
@@ -126,16 +129,38 @@ export default defineConfig({
       });
       // ================================
 
+      // ===== Add Task to Get Latest Downloaded File =====
+      on('task', {
+        getLatestFile(downloadDir) {
+          if (!fs.existsSync(downloadDir)) {
+            return null;
+          }
+
+          const files = fs.readdirSync(downloadDir);
+          if (files.length === 0) {
+            return null;
+          }
+
+          // Sort files by modification time (most recent first)
+          const filePaths = files.map((file) => path.join(downloadDir, file));
+          const latestFile = filePaths.reduce((latest, current) =>
+            fs.statSync(current).mtime > fs.statSync(latest).mtime ? current : latest
+          );
+
+          return latestFile;
+        },
+      });
+      // ===============================================
+
       on('after:spec', (spec, results) => {
         if (results && results.stats && results.stats.tests > 0) {
           const reportFilename = `${path.basename(spec.relative, '.js')}-${results.stats.startedAt.replace(/:/g, '-')}`;
           config.reporterOptions.mochawesomeReporterOptions.reportFilename = reportFilename;
         }
       });
-      
+
       return config;
     },
-
-    
   },
 });
+
