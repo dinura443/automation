@@ -2,12 +2,15 @@
 
 export class DashBoard {
   // Locators
-  dashboardUrl = 'http://localhost:8088/dashboard/list/';
+  dashboardUrl = 'https://analytics.qbitum.net/dashboard/list/';
   tableRowSelector = 'tr[role="row"]';
-  itemNameSelector = 'a'; // The <a> tag containing the item name
+  itemNameSelector = 'td a'; // Updated selector to target <a> tags inside table cells
   shareButtonSelector = 'span[aria-label="share"]'; // Selector for the "Share" button
   importButtonSelector = 'button > span[aria-label="import"]'; // Selector for the "Import" button
+  selectFileInputSelector = '#modelFile'; // Selector for the hidden file input field
+  importDialogImportButtonSelector = 'button[type="submit"][data-title="Import"]'; // Selector for the "Import" button in the dialog
 
+  importbutton = "//span[normalize-space()='Import']";
   // Method to visit the dashboard page
   visitDashboardPage() {
     cy.visit(this.dashboardUrl);
@@ -15,7 +18,17 @@ export class DashBoard {
 
   // Method to find a row by item name
   findRowByItemName(itemName: string) {
-    return cy.contains(this.itemNameSelector, itemName).closest(this.tableRowSelector);
+    // Debugging: Log the search for the item name
+    cy.log(`Searching for item name: "${itemName}"`);
+
+    // Wait for the item name to appear in the DOM
+    return cy.contains(this.itemNameSelector, itemName, { timeout: 10000 }) // Increase timeout to 10 seconds
+      .should('exist') // Ensure the element exists in the DOM
+      .and('be.visible') // Ensure the element is visible
+      .then(($element) => {
+        cy.log(`Found item name: "${itemName}" in the DOM`);
+        return cy.wrap($element).closest(this.tableRowSelector); // Return the closest table row
+      });
   }
 
   // Method to click the "Share" button for a specific row
@@ -24,42 +37,40 @@ export class DashBoard {
       .should('exist') // Ensure the row exists
       .within(() => {
         cy.get(this.shareButtonSelector) // Locate the "Share" button within the row
+          .should('exist') // Ensure the button exists
+      //    .and('be.visible') // Ensure the button is visible
           .click(); // Click the "Share" button
       });
   }
 
-  // Method to upload a specific file to another URL
+
+  
   uploadSpecificFile(targetUrl: string, filePath: string, submitButtonSelector: string) {
     // Navigate to the target URL
     cy.visit(targetUrl);
-
-    // Debugging: Log the file path
-    cy.log(`Uploading file: ${filePath}`);
-
-    // Wait for the "Import" button to appear and be visible
-    cy.get(this.importButtonSelector, { timeout: 10000 }) // Increase timeout to 10 seconds
-      .should('exist') // Ensure the button exists in the DOM
-      .and('be.visible') // Ensure the button is visible
+  
+    // Step 1: Trigger the import dialog by clicking the "Import" button
+    cy.get(this.importButtonSelector, { timeout: 10000 })
+      .should('exist')
+      .and('be.visible')
       .then(($button) => {
         cy.log('Found the "Import" button:', $button);
-        cy.wrap($button).click({ force: true }); // Click the "Import" button
+        cy.wrap($button).click({ force: true });
       });
-
-    // Simulate file selection using the hidden input field
-    cy.get('#modelFile').attachFile({
-      filePath: filePath, // Use the specified file path
-      fileName: filePath.split('/').pop(), // Extract the file name
+  
+    // Step 2: Simulate file selection using the hidden input field
+    cy.get(this.selectFileInputSelector).attachFile({
+      filePath: filePath,
+      fileName: filePath.split('/').pop(),
     });
-
-    // Wait for the file to be attached (optional)
-    cy.wait(1000); // Adjust or remove as needed
-
-    // Submit the form
-    cy.get(submitButtonSelector).click();
-
+  
+    // Step 3: Click the "Import" button in the dialog
+    cy.xpath(this.importbutton)
+    .should("be.visible")
+    .click();
+  
     // Add assertions or actions after upload
-    cy.contains('File uploaded successfully').should('be.visible'); // Replace with the actual success message
+    cy.contains('File uploaded successfully').should('be.visible');
   }
-}
 
-export default new DashBoard();
+}

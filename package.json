@@ -27,10 +27,11 @@
     "@qbitum/qtaf-google-notification": "^1.0.0",
     "@qbitum/qtaf-service-core": "^1.0.0",
     "@qbitum/qtaf-ui-core": "^1.0.0",
+    "@types/fs-extra": "^11.0.4",
     "@types/uuid": "^10.0.0",
     "allure-commandline": "^2.24.1",
     "allure-service-client": "^1.0.2",
-    "cypress": "^13.17.0",
+    "cypress": "^14.2.1",
     "cypress-downloadfile": "^1.2.4",
     "cypress-file-upload": "^5.0.8",
     "cypress-multi-reporters": "^1.6.1",
@@ -45,5 +46,8 @@
     "typescript": "^5.2.2",
     "uuid": "^10.0.0",
     "xlsx": "^0.18.5"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.0"
   }
 }
