@@ -5,9 +5,9 @@ const login = new LoginPage();
 const dashboard = new DashBoard();
 
 describe('File Import Test', () => {
-  const itemName = 'move1';
+  const itemName = 'Factory View 6.0';
   const targetUrl = 'https://analytics.qbitum.net/dashboard/list/';
-  const originalDownloadPath = '/home/john/Documents/automation/cypress/downloads'; // Default download directory
+  const originalDownloadPath = '/home/john/Documents/Automation/cypress/downloads'; // Default download directory
   const desiredDownloadPath = 'downloads'; // Relative path within cypress/fixtures
 
   it('Should upload a specific file to the target URL', () => {
