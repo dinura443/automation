@@ -8,7 +8,7 @@ export class LoginPage {
 
   // Method to navigate to the login page
   visitLoginPage() {
-    cy.visit('localhost:8088');
+    cy.visit('http://localhost:8088/superset/welcome/');
   }
 
   // Method to enter the username
