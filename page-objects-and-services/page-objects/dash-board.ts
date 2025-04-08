@@ -1,7 +1,7 @@
 export class DashBoard {
   dashboardUrl = 'http://localhost:8088/dashboard/list';
   tableRowSelector = 'tr[role="row"]';
-  itemNameSelector = 'td a';
+  itemNameSelector = 'td a'; 
   shareButtonSelector = 'span[aria-label="share"]';
   importButtonSelector = 'button > span[aria-label="import"]';
   selectFileInputSelector = '#modelFile';
@@ -51,5 +51,14 @@ export class DashBoard {
     cy.xpath(this.importbutton)
       .should("be.visible")
       .click();
+  }
+
+  clickItemName(itemName: string) {
+    cy.log(`Clicking on item name: "${itemName}"`);
+    cy.contains(this.itemNameSelector, itemName, { timeout: 10000 })
+      .should('exist')
+      .and('be.visible')
+      .click({ force: true }); 
+    cy.log(`Successfully clicked on item name: "${itemName}"`);
   }
 }

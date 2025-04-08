@@ -27,7 +27,9 @@
     "@qbitum/qtaf-google-notification": "^1.0.0",
     "@qbitum/qtaf-service-core": "^1.0.0",
     "@qbitum/qtaf-ui-core": "^1.0.0",
+    "@types/adm-zip": "^0.5.7",
     "@types/fs-extra": "^11.0.4",
+    "@types/js-yaml": "^4.0.9",
     "@types/uuid": "^10.0.0",
     "allure-commandline": "^2.24.1",
     "allure-service-client": "^1.0.2",
@@ -48,6 +50,8 @@
     "xlsx": "^0.18.5"
   },
   "dependencies": {
-    "fs-extra": "^11.3.0"
+    "adm-zip": "^0.5.16",
+    "fs-extra": "^11.3.0",
+    "js-yaml": "^4.1.0"
   }
 }
