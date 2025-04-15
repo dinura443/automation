@@ -1,10 +1,13 @@
 import { defineConfig } from "cypress";
 import { configureAllureAdapterPlugins } from '@mmisty/cypress-allure-adapter/plugins';
+import { VerifyExporter } from "./page-objects-and-services/page-objects/verify";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fsExtra from 'fs-extra';
 import AdmZip from 'adm-zip';
+
 import yaml from 'js-yaml';
+
 
 export default defineConfig({
   chromeWebSecurity: false,
@@ -175,7 +178,19 @@ export default defineConfig({
         }
       });
 
+      on("task", {
+        verifySupersetFiles() {
+          const verifier = new VerifyExporter();
+          const result = verifier.compare();
+          return result; // Cypress will get the result object
+        }
+      });
+
       return config;
+      
     },
+
+    
   },
 });
+

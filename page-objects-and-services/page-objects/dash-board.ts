@@ -1,5 +1,6 @@
 export class DashBoard {
-  dashboardUrl = 'http://localhost:8088/dashboard/list';
+  dashboardUrl = 'https://analytics.qbitum.net/dashboard/list';
+  hosteddashboardUrl = 'https://analytics.qbitum.net/dashboard/list/';
   tableRowSelector = 'tr[role="row"]';
   itemNameSelector = 'td a'; 
   shareButtonSelector = 'span[aria-label="share"]';
@@ -10,6 +11,9 @@ export class DashBoard {
 
   visitDashboardPage() {
     cy.visit(this.dashboardUrl);
+  }
+  visitHostedDashboardPage() {
+    cy.visit(this.hosteddashboardUrl);
   }
 
   findRowByItemName(itemName: string) {
@@ -48,7 +52,7 @@ export class DashBoard {
       fileName: filePath.split('/').pop(),
     });
 
-    cy.xpath(this.importbutton)
+    cy.xpath(this.importbutton,{ timeout: 100000 })
       .should("be.visible")
       .click();
   }
@@ -62,3 +66,4 @@ export class DashBoard {
     cy.log(`Successfully clicked on item name: "${itemName}"`);
   }
 }
+

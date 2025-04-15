@@ -6,8 +6,15 @@ export class LoginPage {
   loginButton = '#kc-login';
 
   visitLoginPage() {
-    cy.visit('http://localhost:8088');
+   cy.visit('http://localhost:8088');
+  // cy.visit('https://redowl.io');
+
   }
+  visitHostedLoginPage() {
+    cy.visit('https://analytics.qbitum.net');
+ 
+   }
+  
 
   enterUsername(username: string) {
     cy.get(this.usernameInput).clear().type(username);
