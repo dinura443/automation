@@ -137,3 +137,5 @@ dist
 .pnp.*
 
 
+# Ignore environment variables
+.env

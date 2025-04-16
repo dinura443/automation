@@ -1,13 +1,12 @@
 import { defineConfig } from "cypress";
-import { configureAllureAdapterPlugins } from '@mmisty/cypress-allure-adapter/plugins';
-import { VerifyExporter } from "./page-objects-and-services/page-objects/verify";
-import * as fs from 'fs';
-import * as path from 'path';
-import * as fsExtra from 'fs-extra';
-import AdmZip from 'adm-zip';
+import * as dotenv from "dotenv";
+import * as fs from "fs";
+import * as path from "path";
+import { VerifyExporter } from "./page-objects-and-services/page-objects/verify"; 
+// Import the VerifyExporter class
 
-import yaml from 'js-yaml';
-
+// Load environment variables from .env
+dotenv.config();
 
 export default defineConfig({
   chromeWebSecurity: false,
@@ -16,36 +15,28 @@ export default defineConfig({
     openMode: 0,
   },
   env: {
-    grepOmitFiltered: true,
-    grepFilterSpecs: true,
-    allure: true,
-    allureCleanResults: true,
-    allureSkipCommands: 'wrap,screenshot,wait',
-    allureResults: 'allure-results',
-    allureAttachRequests: true,
-  },
-  reporter: 'cypress-multi-reporters',
-  reporterOptions: {
-    reporterEnabled: 'spec, mochawesome',
-    mochawesomeReporterOptions: {
-      reportDir: 'cypress/report/mochawesome-report',
-      reportFilename: "[datetime]-[name]-report",
-      timestamp: "isoUtcDateTime",
-      overwrite: false,
-      html: true,
-      json: true,
-    },
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD,
+    itemName: process.env.ITEM_NAME,
+    downloadDir: process.env.DOWNLOAD_DIR,
+    importDir: process.env.IMPORT_DIR,
+    extractedFilesDir: process.env.EXTRACTED_FILES_DIR,
+    importVerifyDir: process.env.IMPORT_VERIFY_DIR,
+    localLoginUrl: process.env.LOCAL_LOGIN_URL,
+    hostedLoginUrl: process.env.HOSTED_LOGIN_URL,
+    dashboardUrl: process.env.DASHBOARD_URL,
+    hostedDashboardUrl: process.env.HOSTED_DASHBOARD_URL,
   },
   e2e: {
-    fixturesFolder: 'cypress/fixtures',
+    fixturesFolder: "cypress/fixtures",
     defaultCommandTimeout: 3000,
     video: false,
     setupNodeEvents(on, config) {
-      require('@cypress/grep/src/plugin')(config);
-      require('cypress-terminal-report/src/installLogsPrinter')(on);
-      const reporter = configureAllureAdapterPlugins(on, config);
+      require("@cypress/grep/src/plugin")(config);
+      require("cypress-terminal-report/src/installLogsPrinter")(on);
 
-      on('task', {
+      // Existing tasks
+      on("task", {
         verifyFoldersExist({ baseDir, folderNames }) {
           try {
             const missingFolders = [];
@@ -56,7 +47,7 @@ export default defineConfig({
               }
             }
             if (missingFolders.length > 0) {
-              return { success: false, message: `The following folders are missing: ${missingFolders.join(', ')}` };
+              return { success: false, message: `The following folders are missing: ${missingFolders.join(", ")}` };
             }
             return { success: true, message: `All required folders exist in ${baseDir}` };
           } catch (error) {
@@ -64,36 +55,6 @@ export default defineConfig({
             return `Error verifying folders: ${errorMessage}`;
           }
         },
-      });
-
-      on('task', {
-        getUnzippedProjectDir(extractDir) {
-          try {
-            const dirContents = fs.readdirSync(extractDir);
-            if (dirContents.length !== 1 || !fs.statSync(path.join(extractDir, dirContents[0])).isDirectory()) {
-              throw new Error(`Expected exactly one directory in ${extractDir}`);
-            }
-            return path.join(extractDir, dirContents[0]);
-          } catch (error) {
-            const errorMessage = (error as Error).message;
-            return `Error getting unzipped project directory: ${errorMessage}`;
-          }
-        },
-      });
-
-      on('before:run', (details) => {
-        reporter?.writeEnvironmentInfo({
-          info: {
-            os: details.system.osName,
-            osVersion: details.system.osVersion,
-            browser: `${details.browser?.displayName} ${details.browser?.version}`,
-            ...config.env,
-          },
-        });
-        reporter?.writeCategoriesDefinitions({ categories: './allure-error-categories.json' });
-      });
-
-      on('task', {
         getLatestFile(downloadDir) {
           if (!fs.existsSync(downloadDir)) {
             console.error(`Directory not found: ${downloadDir}`);
@@ -111,36 +72,25 @@ export default defineConfig({
           console.log(`Found latest file: ${latestFile}`);
           return latestFile;
         },
-      });
-
-      on('task', {
-        fileExists(filePath) {
-          return fs.existsSync(filePath);
-        },
-      });
-
-      on('task', {
         moveFile({ source, destination }) {
           try {
             const destDir = path.dirname(destination);
             if (!fs.existsSync(destDir)) {
               fs.mkdirSync(destDir, { recursive: true });
             }
-            fsExtra.moveSync(source, destination, { overwrite: true });
+            fs.renameSync(source, destination);
             return `File moved successfully from ${source} to ${destination}`;
           } catch (error) {
             const errorMessage = (error as Error).message;
             return `Error moving file: ${errorMessage}`;
           }
         },
-      });
-
-      on('task', {
         unzipFile({ zipPath, extractDir }) {
           try {
             if (!fs.existsSync(zipPath)) {
               throw new Error(`ZIP file not found: ${zipPath}`);
             }
+            const AdmZip = require("adm-zip"); // Ensure adm-zip is installed
             const zip = new AdmZip(zipPath);
             zip.extractAllTo(extractDir, true);
             return `Successfully extracted ZIP file to: ${extractDir}`;
@@ -149,48 +99,30 @@ export default defineConfig({
             return `Error unzipping file: ${errorMessage}`;
           }
         },
-      });
-
-      on('task', {
         readYamlFile(filePath) {
           try {
             if (!fs.existsSync(filePath)) {
               throw new Error(`YAML file not found: ${filePath}`);
             }
-            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const yaml = require("js-yaml");
+            const fileContent = fs.readFileSync(filePath, "utf8");
             return yaml.load(fileContent);
           } catch (error) {
             const errorMessage = (error as Error).message;
-            return `Error reading yaml file: ${errorMessage}`;
+            return `Error reading YAML file: ${errorMessage}`;
           }
         },
       });
 
-      on('before:browser:launch', (browser, launchOptions) => {
-        if (browser.name === 'chrome' || browser.name === 'chromium') {
-          const downloadDir = '/home/john/Documents/automation/cypress/fixtures/downloads';
-          console.log(`Configuring download directory: ${downloadDir}`);
-          launchOptions.preferences.default['download'] = {
-            default_directory: downloadDir,
-          };
-          console.log(`Launch options updated:`, JSON.stringify(launchOptions, null, 2));
-          return launchOptions;
-        }
-      });
-
       on("task", {
-        verifySupersetFiles() {
-          const verifier = new VerifyExporter();
+        verifySupersetFiles({ extractedFilesDir, importVerifyDir }) {
+          const verifier = new VerifyExporter(extractedFilesDir, importVerifyDir); // Pass paths to the constructor
           const result = verifier.compare();
-          return result; // Cypress will get the result object
-        }
+          return result; // Return the result object
+        },
       });
-
-      return config;
-      
-    },
-
     
+      return config;
+      },
   },
 });
-

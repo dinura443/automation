@@ -1,27 +1,22 @@
-
 export class LoginPage {
-
-  usernameInput = '#username';
-  passwordInput = '#password';
-  loginButton = '#kc-login';
+  usernameInput = "#username";
+  passwordInput = "#password";
+  loginButton = "#kc-login";
 
   visitLoginPage() {
-   cy.visit('http://localhost:8088');
-  // cy.visit('https://redowl.io');
-
+    cy.visit(Cypress.env("localLoginUrl"));
   }
+
   visitHostedLoginPage() {
-    cy.visit('https://analytics.qbitum.net');
- 
-   }
-  
-
-  enterUsername(username: string) {
-    cy.get(this.usernameInput).clear().type(username);
+    cy.visit(Cypress.env("hostedLoginUrl"));
   }
 
-  enterPassword(password: string) {
-    cy.get(this.passwordInput).clear().type(password);
+  enterUsername() {
+    cy.get(this.usernameInput).clear().type(Cypress.env("username"));
+  }
+
+  enterPassword() {
+    cy.get(this.passwordInput).clear().type(Cypress.env("password"));
   }
 
   clickLoginButton() {

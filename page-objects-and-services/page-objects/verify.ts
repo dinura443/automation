@@ -5,8 +5,13 @@ import isEqual from "lodash.isequal";
 
 export class VerifyExporter {
   private ignoreFiles = ["metadata.yaml"];
-  private extractedBase = "/home/john/Documents/Automation/cypress/fixtures/extracted_files";
-  private importBase = "/home/john/Documents/Automation/cypress/fixtures/import_file_verify";
+  private extractedBase: string; // Path for extracted files
+  private importBase: string;   // Path for imported files
+
+  constructor(extractedBase: string, importBase: string) {
+    this.extractedBase = extractedBase;
+    this.importBase = importBase;
+  }
 
   private getLatestSubDir(baseDir: string): string | null {
     const dirs = fs.readdirSync(baseDir)
@@ -43,12 +48,12 @@ export class VerifyExporter {
     const latestImported = this.getLatestSubDir(this.importBase);
 
     if (!latestExtracted || !latestImported) {
-      console.error(" Could not find latest export folders.");
+      console.error("Could not find latest export folders.");
       return { success: false, summary: "Missing folders" };
     }
 
-    console.log(` Comparing extracted: ${latestExtracted}`);
-    console.log(` With imported:     ${latestImported}`);
+    console.log(`Comparing extracted: ${latestExtracted}`);
+    console.log(`With imported:     ${latestImported}`);
 
     const files1 = this.getAllYamlFiles(latestExtracted);
     const files2 = this.getAllYamlFiles(latestImported);
@@ -56,15 +61,15 @@ export class VerifyExporter {
     const missingInDir2 = files1.filter(f => !files2.includes(f));
     const extraInDir2 = files2.filter(f => !files1.includes(f));
 
-    console.log(" Comparing folder structures...");
+    console.log("Comparing folder structures...");
     if (missingInDir2.length || extraInDir2.length) {
       if (missingInDir2.length) console.warn("Missing in import folder:", missingInDir2);
       if (extraInDir2.length) console.warn("Extra in import folder:", extraInDir2);
     } else {
-      console.log(" Folder structures match.");
+      console.log("Folder structures match.");
     }
 
-    console.log("\n Comparing YAML contents...");
+    console.log("\nComparing YAML contents...");
     let differences = 0;
 
     files1.forEach(file => {
@@ -76,18 +81,14 @@ export class VerifyExporter {
         const content2 = this.loadYaml(file2);
 
         if (!isEqual(content1, content2)) {
-          console.warn(` Content mismatch: ${file}`);
+          console.warn(`Content mismatch: ${file}`);
           differences++;
         }
       }
     });
 
     if (!differences && missingInDir2.length === 0 && extraInDir2.length === 0) {
-
-      console.log("###################################################################");
-      console.log(" All files match!");
-      console.log("###################################################################");
-
+      console.log("All files match!");
     }
 
     return {
@@ -95,8 +96,8 @@ export class VerifyExporter {
       summary: {
         differences,
         missingInDir2,
-        extraInDir2
-      }
+        extraInDir2,
+      },
     };
   }
 }

@@ -1,26 +1,29 @@
 export class DashBoard {
-  dashboardUrl = 'https://analytics.qbitum.net/dashboard/list';
-  hosteddashboardUrl = 'https://analytics.qbitum.net/dashboard/list/';
+  dashboardUrl = Cypress.env("dashboardUrl");
+  hostedDashboardUrl = Cypress.env("hostedDashboardUrl");
   tableRowSelector = 'tr[role="row"]';
-  itemNameSelector = 'td a'; 
+  itemNameSelector = "td a";
   shareButtonSelector = 'span[aria-label="share"]';
   importButtonSelector = 'button > span[aria-label="import"]';
-  selectFileInputSelector = '#modelFile';
+  selectFileInputSelector = "#modelFile";
   importDialogImportButtonSelector = 'button[type="submit"][data-title="Import"]';
+
   importbutton = "//span[normalize-space()='Import']";
 
+  
   visitDashboardPage() {
     cy.visit(this.dashboardUrl);
   }
+
   visitHostedDashboardPage() {
-    cy.visit(this.hosteddashboardUrl);
+    cy.visit(this.hostedDashboardUrl);
   }
 
   findRowByItemName(itemName: string) {
     cy.log(`Searching for item name: "${itemName}"`);
     return cy.contains(this.itemNameSelector, itemName, { timeout: 10000 })
-      .should('exist')
-      .and('be.visible')
+      .should("exist")
+      .and("be.visible")
       .then(($element) => {
         cy.log(`Found item name: "${itemName}" in the DOM`);
         return cy.wrap($element).closest(this.tableRowSelector);
@@ -29,15 +32,15 @@ export class DashBoard {
 
   clickShareButtonForRow(itemName: string) {
     this.findRowByItemName(itemName)
-      .should('exist')
+      .should("exist")
       .within(() => {
         cy.get(this.shareButtonSelector)
-          .should('exist')
+          .should("exist")
           .click();
       });
   }
 
-  uploadSpecificFile(targetUrl: string, filePath: string, submitButtonSelector: string) {
+  uploadSpecificFile(targetUrl: string, filePath: string) {
     cy.visit(targetUrl);
     cy.get(this.importButtonSelector, { timeout: 10000 })
       .should('exist')
@@ -52,9 +55,9 @@ export class DashBoard {
       fileName: filePath.split('/').pop(),
     });
 
-    cy.xpath(this.importbutton,{ timeout: 100000 })
+    cy.xpath(this.importbutton,{ timeout: 500000 })
       .should("be.visible")
-      .click();
+      .click({ timeout: 500000 });
   }
 
   clickItemName(itemName: string) {
@@ -66,4 +69,3 @@ export class DashBoard {
     cy.log(`Successfully clicked on item name: "${itemName}"`);
   }
 }
-
