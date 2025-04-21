@@ -96,7 +96,7 @@ describe("Export file for verification", () => {
 
 
 
-  it("Should upload a specific file, verify overwrite, and validate the export", () => {
+  it("export a file", () => {
 
     cy.log(`Item Name: ${Cypress.env("itemName")}`); // Debug log
 
@@ -167,10 +167,15 @@ describe("Export file for verification", () => {
   });
 });
 
+
+
 // Move & extract the downloaded files
 describe("Move & extract the downloaded files", () => {
-  const downloadDirectory = Cypress.env("downloadDir");
+  const downloadDirectory = Cypress.env("importDir");
   const extractDir = Cypress.env("extractedFilesDir");
+
+
+  
 
   it("extract & move files to extracted_files", () => {
     cy.log("Step 1: Get the latest ZIP file...");
