@@ -8,7 +8,7 @@ const path = require('path');
 
 
 // Export from the local site
-/*
+
 
 describe("File Export Test", () => {
 
@@ -38,7 +38,7 @@ describe("File Export Test", () => {
   });
 });
 
-*/
+
 
 describe("Login, Navigate, Scrape and Click on Specific Dashboard on Instance 1", () => {
   it("Should login, navigate to dashboard, scrape charts and open the specific dashboard", () => {
@@ -163,13 +163,13 @@ describe("Compare Instance 1 and Instance 2 Chart Data", () => {
   });
 });
 
-/*
+
 
 
 // Import to the hosted site
 describe("File Import Test", () => {
   const targetUrl = Cypress.env("hostedDashboardUrl");
-  const originalDownloadPath = Cypress.env("importDir");
+  const originalDownloadPath = Cypress.env("downloadDir");
   const desiredDownloadPath = "downloads";
   const uploadButtonSelector = 'ant-btn superset-button superset-button-primary cta css-z1d1fr';
 
@@ -389,5 +389,4 @@ describe("Superset Export-Import Verification Using Headless", () => {
   });
 });
 
-*/
 
