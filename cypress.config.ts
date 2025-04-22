@@ -8,6 +8,8 @@ import { VerifyExporter } from "./page-objects-and-services/page-objects/verify"
 // Load environment variables from .env
 dotenv.config();
 
+
+
 export default defineConfig({
   chromeWebSecurity: false,
   retries: {
@@ -26,6 +28,7 @@ export default defineConfig({
     hostedLoginUrl: process.env.HOSTED_LOGIN_URL,
     dashboardUrl: process.env.DASHBOARD_URL,
     hostedDashboardUrl: process.env.HOSTED_DASHBOARD_URL,
+    datapath: process.env.DATA_DIR
   },
   e2e: {
     fixturesFolder: "cypress/fixtures",
@@ -121,7 +124,33 @@ export default defineConfig({
           return result; // Return the result object
         },
       });
-    
+      on('task', {
+        writeJson({ filename, data }) {
+          const dir = path.join(__dirname, 'data');
+
+          // Create directory if it doesn't exist
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+
+          const filePath = path.join(dir, filename);
+
+          fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+          console.log(`JSON data written to ${filePath}`);
+          return null;
+        }
+      });
+
+      on('task', {
+        readJsonFile({ filename }) {
+          const filePath = path.join(__dirname, '..', '..', 'fixtures', 'data', filename); // Adjust path if using custom folder
+          if (fs.existsSync(filePath)) {
+            return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          } else {
+            return null; // If file doesn't exist
+          }
+        }
+      });
       return config; 
       },
   },
