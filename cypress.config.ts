@@ -7,7 +7,11 @@ import { VerifyExporter } from "./page-objects-and-services/page-objects/verify"
 
 // Load environment variables from .env
 dotenv.config();
-
+interface ChartData {
+  title: string;
+  id: string;
+  alignment: string;
+}
 
 
 export default defineConfig({
@@ -32,6 +36,7 @@ export default defineConfig({
   },
   e2e: {
     
+    
     fixturesFolder: "cypress/fixtures",
     downloadsFolder: "cypress/downloads",
     defaultCommandTimeout: 3000,
@@ -41,6 +46,75 @@ export default defineConfig({
       require("cypress-terminal-report/src/installLogsPrinter")(on);
 
       // Existing tasks
+
+      on("task", {
+        compareJsonFiles({ file1, file2 }) {
+          try {
+            // Resolve file paths
+            const filePath1 = path.resolve(file1);
+            const filePath2 = path.resolve(file2);
+
+            // Read and parse JSON files with explicit typing
+            const data1: ChartData[] = JSON.parse(fs.readFileSync(filePath1, "utf8"));
+            const data2: ChartData[] = JSON.parse(fs.readFileSync(filePath2, "utf8"));
+
+            // Perform comparison
+            if (data1.length !== data2.length) {
+              return {
+                success: false,
+                message: `Mismatch: Instance 1 has ${data1.length} charts, while Instance 2 has ${data2.length} charts.`,
+              };
+            }
+
+            let mismatchFound = false;
+            const mismatches: { chartIndex: number; differences: any }[] = [];
+
+            data1.forEach((chartData: ChartData, index) => {
+              const instance2ChartData = data2[index];
+              if (
+                chartData.title !== instance2ChartData.title ||
+                chartData.id !== instance2ChartData.id ||
+                chartData.alignment !== instance2ChartData.alignment
+              ) {
+                mismatchFound = true;
+                mismatches.push({
+                  chartIndex: index + 1,
+                  differences: {
+                    title: chartData.title !== instance2ChartData.title
+                      ? { instance1: chartData.title, instance2: instance2ChartData.title }
+                      : undefined,
+                    id: chartData.id !== instance2ChartData.id
+                      ? { instance1: chartData.id, instance2: instance2ChartData.id }
+                      : undefined,
+                    alignment: chartData.alignment !== instance2ChartData.alignment
+                      ? { instance1: chartData.alignment, instance2: instance2ChartData.alignment }
+                      : undefined,
+                  },
+                });
+              }
+            });
+
+            if (mismatchFound) {
+              return {
+                success: false,
+                message: `Mismatch found in ${mismatches.length} chart(s):`,
+                mismatches,
+              };
+            }
+
+            return {
+              success: true,
+              message: "JSON files are consistent.",
+            };
+          } catch (error) {
+            return {
+              success: false,
+              message: `Error comparing JSON files: ${(error as Error).message}`,
+            };
+          }
+        },
+      });
+
       on("task", {
         verifyFoldersExist({ baseDir, folderNames }) {
           try {
@@ -61,6 +135,7 @@ export default defineConfig({
           }
         },
         
+        
         getLatestFile(downloadDir) {
           if (!fs.existsSync(downloadDir)) {
             console.error(`Directory not found: ${downloadDir}`);
@@ -78,6 +153,7 @@ export default defineConfig({
           console.log(`Found latest file: ${latestFile}`);
           return latestFile;
         },
+        
         moveFile({ source, destination }) {
           try {
             const destDir = path.dirname(destination);
@@ -120,11 +196,18 @@ export default defineConfig({
         },
       });
 
+
       on("task", {
         verifySupersetFiles({ extractedFilesDir, importVerifyDir }) {
           const verifier = new VerifyExporter(extractedFilesDir, importVerifyDir); // Pass paths to the constructor
           const result = verifier.compare();
           return result; // Return the result object
+        },
+      });
+      on("task", {
+        log(message: string) {
+          console.log(message); // Print the message to the terminal
+          return null; // Cypress requires tasks to return something (null is fine here)
         },
       });
       on('task', {

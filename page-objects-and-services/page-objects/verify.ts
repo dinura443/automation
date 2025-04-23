@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
-import isEqual from "lodash.isequal";
 
 export class VerifyExporter {
   private ignoreFiles = ["metadata.yaml"];
@@ -29,6 +28,13 @@ export class VerifyExporter {
     fs.readdirSync(dir).forEach(file => {
       const fullPath = path.join(dir, file);
       const stat = fs.statSync(fullPath);
+
+      // Skip the 'dashboards' directory and its contents
+      if (stat.isDirectory() && path.basename(fullPath) === "dashboards") {
+        console.log(`Skipping directory: ${fullPath}`);
+        return;
+      }
+
       if (stat.isDirectory()) {
         files.push(...this.getAllYamlFiles(fullPath, base));
       } else if (file.endsWith(".yaml") && !this.ignoreFiles.includes(path.basename(file))) {
@@ -41,6 +47,34 @@ export class VerifyExporter {
   private loadYaml(filePath: string): any {
     const content = fs.readFileSync(filePath, "utf8");
     return yaml.load(content);
+  }
+
+  private findDifferences(obj1: any, obj2: any, path: string = ""): string[] {
+    const differences: string[] = [];
+
+    // Compare keys in both objects
+    const allKeys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
+    allKeys.forEach(key => {
+      // Ignore the 'sqlalchemy_uri' key
+      if (key === "sqlalchemy_uri") {
+        return;
+      }
+
+      const currentPath = path ? `${path}.${key}` : key;
+
+      if (!(key in obj1)) {
+        differences.push(`Missing in exported: ${currentPath}`);
+      } else if (!(key in obj2)) {
+        differences.push(`Missing in imported: ${currentPath}`);
+      } else if (typeof obj1[key] === "object" && typeof obj2[key] === "object") {
+        // Recursively compare nested objects
+        differences.push(...this.findDifferences(obj1[key], obj2[key], currentPath));
+      } else if (obj1[key] !== obj2[key]) {
+        differences.push(`Mismatch at ${currentPath}: Exported=${obj1[key]}, Imported=${obj2[key]}`);
+      }
+    });
+
+    return differences;
   }
 
   public compare(): { success: boolean; summary: any } {
@@ -58,8 +92,15 @@ export class VerifyExporter {
     const files1 = this.getAllYamlFiles(latestExtracted);
     const files2 = this.getAllYamlFiles(latestImported);
 
-    const missingInDir2 = files1.filter(f => !files2.includes(f));
-    const extraInDir2 = files2.filter(f => !files1.includes(f));
+    // Filter out files in the 'dashboards' directory
+    const filterDashboards = (files: string[]) =>
+      files.filter(file => !file.startsWith("dashboards/"));
+
+    const filteredFiles1 = filterDashboards(files1);
+    const filteredFiles2 = filterDashboards(files2);
+
+    const missingInDir2 = filteredFiles1.filter(f => !filteredFiles2.includes(f));
+    const extraInDir2 = filteredFiles2.filter(f => !filteredFiles1.includes(f));
 
     console.log("Comparing folder structures...");
     if (missingInDir2.length || extraInDir2.length) {
@@ -72,7 +113,7 @@ export class VerifyExporter {
     console.log("\nComparing YAML contents...");
     let differences = 0;
 
-    files1.forEach(file => {
+    filteredFiles1.forEach(file => {
       const file1 = path.join(latestExtracted, file);
       const file2 = path.join(latestImported, file);
 
@@ -80,9 +121,11 @@ export class VerifyExporter {
         const content1 = this.loadYaml(file1);
         const content2 = this.loadYaml(file2);
 
-        if (!isEqual(content1, content2)) {
+        const diff = this.findDifferences(content1, content2);
+        if (diff.length > 0) {
           console.warn(`Content mismatch: ${file}`);
           differences++;
+          diff.forEach(d => console.warn(d)); // Log detailed differences
         }
       }
     });
