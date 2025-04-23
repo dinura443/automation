@@ -45,7 +45,10 @@ export class DashBoard {
       .within(() => {
         cy.get(this.shareButtonSelector)
           .should("exist")
-          .click();
+          .click()
+          .then(() => {
+            cy.log("Share button clicked. Waiting for file download...");
+          });
       });
   }
 

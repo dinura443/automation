@@ -31,7 +31,9 @@ export default defineConfig({
     datapath: process.env.DATA_DIR
   },
   e2e: {
+    
     fixturesFolder: "cypress/fixtures",
+    downloadsFolder: "cypress/downloads",
     defaultCommandTimeout: 3000,
     video: false,
     setupNodeEvents(on, config) {
@@ -58,6 +60,7 @@ export default defineConfig({
             return `Error verifying folders: ${errorMessage}`;
           }
         },
+        
         getLatestFile(downloadDir) {
           if (!fs.existsSync(downloadDir)) {
             console.error(`Directory not found: ${downloadDir}`);
@@ -126,15 +129,14 @@ export default defineConfig({
       });
       on('task', {
         writeJson({ filename, data }) {
+          console.log(`Attempting to write JSON file: ${filename}`);
+          console.log(`Data to write: ${JSON.stringify(data)}`);
           const dir = path.join(__dirname, 'data');
-
-          // Create directory if it doesn't exist
           if (!fs.existsSync(dir)) {
+            console.log(`Creating directory: ${dir}`);
             fs.mkdirSync(dir, { recursive: true });
           }
-
           const filePath = path.join(dir, filename);
-
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
           console.log(`JSON data written to ${filePath}`);
           return null;
@@ -151,6 +153,8 @@ export default defineConfig({
           }
         }
       });
+
+      
       return config; 
       },
   },

@@ -1,37 +1,23 @@
 [
   {
     "index": 1,
-    "id": "76",
-    "name": "Publishers With Most Titles",
-    "title": "Top 10 Games (by Global Sales)",
+    "id": "115",
+    "name": "Production Comparison*Tab-4 v1.0",
+    "title": "Production Comparison",
     "alignment": "Column 1"
   },
   {
     "index": 2,
-    "id": "74",
-    "name": "Most Dominant Platforms",
-    "title": "Publishers of Top 25 Games",
+    "id": "114",
+    "name": "Production Comparison*Tab-1 v1.0",
+    "title": "Production Comparison",
     "alignment": "Column 2"
   },
   {
     "index": 3,
-    "id": "69",
-    "name": "# of Games That Hit 100k in Sales By Release Year",
-    "title": "Top 10 Consoles, by # of Hit Games",
+    "id": "113",
+    "name": "Production Comparison*Tab-3 v1.0",
+    "title": "Production Comparison",
     "alignment": "Column 3"
-  },
-  {
-    "index": 4,
-    "id": "68",
-    "name": "Popular Genres Across Platforms",
-    "title": "Popular Genres Across Platforms",
-    "alignment": "Column 1"
-  },
-  {
-    "index": 5,
-    "id": "72",
-    "name": "Top 10 Games: Proportion of Sales in Markets",
-    "title": "Top 10 Games: Proportion of Sales in Markets",
-    "alignment": "Column 2"
   }
 ]

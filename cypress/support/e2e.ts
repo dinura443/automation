@@ -26,6 +26,7 @@ registerCypressGrep()
 
 //cypress terminal log
 require('cypress-terminal-report/src/installLogsCollector')();
+require('cypress-downloadfile/lib/downloadFileCommand');
 
 // void un-expected token and syntax errors while execute test
 Cypress.on('uncaught:exception', (err, runnable) => {

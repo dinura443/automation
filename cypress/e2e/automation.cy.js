@@ -8,11 +8,8 @@ const path = require('path');
 
 
 // Export from the local site
-
-
 describe("File Export Test", () => {
-
-  it("Should upload a specific file, verify overwrite, and validate the export", () => {
+  it("Should  export", () => {
     cy.log(`Local Login URL: ${Cypress.env("localLoginUrl")}`);
     cy.log(`Hosted Login URL: ${Cypress.env("hostedLoginUrl")}`);
     cy.log(`Username: ${Cypress.env("username")}`);
@@ -35,6 +32,17 @@ describe("File Export Test", () => {
 
     cy.log("Step 4: Triggering file download...");
     dashboard.clickShareButtonForRow(itemName);
+
+    // Wait for the file to appear in the download directory
+    const downloadDir = Cypress.config("downloadsFolder"); // Default: cypress/downloads
+    cy.log(`Waiting for file to appear in directory: ${downloadDir}`);
+
+    cy.task("getLatestFile", downloadDir).then((latestFilePath) => {
+      if (!latestFilePath) {
+        throw new Error(`No files found in directory: ${downloadDir}`);
+      }
+      cy.log(`File successfully downloaded: ${latestFilePath}`);
+    });
   });
 });
 
@@ -84,87 +92,6 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard on Instance 1"
 
 
 
-describe("Login, Navigate, Scrape and Click on Specific Dashboard on Instance 2 for Verification", () => {
-  it("Should login, navigate to dashboard, scrape charts and open the specific dashboard", () => {
-    cy.log("Logging in...");
-    login.visitLoginPage(); // Adjust method if necessary
-    login.enterUsername();
-    login.enterPassword();
-    login.clickLoginButton();
-    
-    cy.log("Navigating to dashboard page...");
-    dashboard.visitDashboardPage(); // Adjust method if necessary
-
-    const itemName = Cypress.env("itemName");
-    const instanceLabel = 'instance2'; // Or dynamically set with Cypress.env('instanceLabel')
-    const fileName = `${instanceLabel}_${itemName}_charts.json`;
-
-    cy.log(`Searching for item name: "${itemName}"`);
-
-    dashboard.findRowByItemName(itemName)
-      .should("exist")
-      .and("be.visible")
-      .then(() => {
-        cy.log(`Found "${itemName}" on the dashboard.`);
-
-        dashboard.clickItemName(itemName);
-
-        cy.log("Waiting for dashboard charts to load...");
-        cy.get('.dashboard-component', { timeout: 10000 }).should('exist');
-
-        cy.log("Scraping charts on the specific dashboard...");
-        dashboard.getDashboardCharts(itemName);
-      });
-
-    dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
-      cy.task('writeJson', {
-        filename: fileName,  // Save as instance2_<itemName>_charts.json
-        data: scrapedChartData,
-      });
-    });
-  });
-});
-
-
-
-
-describe("Compare Instance 1 and Instance 2 Chart Data", () => {
-  it("Should compare the chart data between instance 1 and instance 2", () => {
-    const dataPath = Cypress.env("datapath");
-    const itemName = Cypress.env("itemName");
-
-    const instance1FilePath = `${dataPath}/instance1_${itemName}_charts.json`;
-    const instance2FilePath = `${dataPath}/instance2_${itemName}_charts.json`;
-
-    cy.log(`Comparing charts data for: ${itemName}`);
-    cy.log(`Instance 1 file path: ${instance1FilePath}`);
-    cy.log(`Instance 2 file path: ${instance2FilePath}`);
-
-    cy.readFile(instance1FilePath).then((instance1Data) => {
-      cy.readFile(instance2FilePath).then((instance2Data) => {
-        
-        cy.log(`Instance 1 data: ${JSON.stringify(instance1Data)}`);
-        cy.log(`Instance 2 data: ${JSON.stringify(instance2Data)}`);
-
-        expect(instance1Data.length).to.equal(instance2Data.length, "The number of charts should be the same.");
-
-        instance1Data.forEach((chartData, index) => {
-          const instance2ChartData = instance2Data[index];
-
-          expect(chartData.title).to.equal(instance2ChartData.title, `Chart ${index + 1}: Titles should match.`);
-          
-          expect(chartData.id).to.equal(instance2ChartData.id, `Chart ${index + 1}: IDs should match.`);
-          expect(chartData.alignment).to.equal(instance2ChartData.alignment, `Chart ${index + 1}: Alignments should match.`);
-        });
-
-        cy.log("Comparison complete: Instance 1 and Instance 2 chart data are consistent.");
-      });
-    });
-  });
-});
-
-
-
 
 // Import to the hosted site
 describe("File Import Test", () => {
@@ -210,6 +137,50 @@ describe("File Import Test", () => {
     });
   });
 });
+
+
+
+describe("Login, Navigate, Scrape and Click on Specific Dashboard on Instance 2 for Verification", () => {
+  it("Should login, navigate to dashboard, scrape charts and open the specific dashboard", () => {
+    cy.log("Logging in...");
+    login.visitHostedLoginPage(); // Adjust method if necessary
+    login.enterUsername();
+    login.enterPassword();
+    login.clickLoginButton();
+    
+    cy.log("Navigating to dashboard page...");
+    dashboard.visitHostedDashboardPage(); // Adjust method if necessary
+
+    const itemName = Cypress.env("itemName");
+    const instanceLabel = 'instance2'; // Or dynamically set with Cypress.env('instanceLabel')
+    const fileName = `${instanceLabel}_${itemName}_charts.json`;
+
+    cy.log(`Searching for item name: "${itemName}"`);
+
+    dashboard.findRowByItemName(itemName)
+      .should("exist")
+      .and("be.visible")
+      .then(() => {
+        cy.log(`Found "${itemName}" on the dashboard.`);
+
+        dashboard.clickItemName(itemName);
+
+        cy.log("Waiting for dashboard charts to load...");
+        cy.get('.dashboard-component', { timeout: 10000 }).should('exist');
+
+        cy.log("Scraping charts on the specific dashboard...");
+        dashboard.getDashboardCharts(itemName);
+      });
+
+    dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
+      cy.task('writeJson', {
+        filename: fileName,  // Save as instance2_<itemName>_charts.json
+        data: scrapedChartData,
+      });
+    });
+  });
+});
+
 
 
 // Again export but from the hosted site for verification purposes
@@ -295,49 +266,6 @@ describe("Export file for verification", () => {
   });
 });
 
-describe("Login, Navigate, Scrape and Click on Specific Dashboard on Instance 2 for Verification", () => {
-  it("Should login, navigate to dashboard, scrape charts and open the specific dashboard", () => {
-    cy.log("Logging in...");
-    login.visitHostedLoginPage(); // Adjust method if necessary
-    login.enterUsername();
-    login.enterPassword();
-    login.clickLoginButton();
-    
-    cy.log("Navigating to dashboard page...");
-    dashboard.visitHostedDashboardPage(); // Adjust method if necessary
-
-    const itemName = Cypress.env("itemName");
-    const instanceLabel = 'instance2'; // Or dynamically set with Cypress.env('instanceLabel')
-    const fileName = `${instanceLabel}_${itemName}_charts.json`;
-
-    cy.log(`Searching for item name: "${itemName}"`);
-
-    dashboard.findRowByItemName(itemName)
-      .should("exist")
-      .and("be.visible")
-      .then(() => {
-        cy.log(`Found "${itemName}" on the dashboard.`);
-
-        dashboard.clickItemName(itemName);
-
-        cy.log("Waiting for dashboard charts to load...");
-        cy.get('.dashboard-component', { timeout: 10000 }).should('exist');
-
-        cy.log("Scraping charts on the specific dashboard...");
-        dashboard.getDashboardCharts(itemName);
-      });
-
-    dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
-      cy.task('writeJson', {
-        filename: fileName,  // Save as instance2_<itemName>_charts.json
-        data: scrapedChartData,
-      });
-    });
-  });
-});
-
-
-
 // Move & extract the downloaded files
 describe("Move & extract the downloaded files", () => {
   const downloadDirectory = Cypress.env("importDir");
@@ -385,6 +313,46 @@ describe("Superset Export-Import Verification Using Headless", () => {
       importVerifyDir: Cypress.env("importVerifyDir"),
     }).then((result) => {
       expect(result.success, "YAML verification passed").to.be.true;
+    });
+  });
+});
+
+
+
+
+
+
+describe("Compare Instance 1 and Instance 2 Chart Data", () => {
+  it("Should compare the chart data between instance 1 and instance 2", () => {
+    const dataPath = Cypress.env("datapath");
+    const itemName = Cypress.env("itemName");
+
+    const instance1FilePath = `${dataPath}/instance1_${itemName}_charts.json`;
+    const instance2FilePath = `${dataPath}/instance2_${itemName}_charts.json`;
+
+    cy.log(`Comparing charts data for: ${itemName}`);
+    cy.log(`Instance 1 file path: ${instance1FilePath}`);
+    cy.log(`Instance 2 file path: ${instance2FilePath}`);
+
+    cy.readFile(instance1FilePath).then((instance1Data) => {
+      cy.readFile(instance2FilePath).then((instance2Data) => {
+        
+        cy.log(`Instance 1 data: ${JSON.stringify(instance1Data)}`);
+        cy.log(`Instance 2 data: ${JSON.stringify(instance2Data)}`);
+
+        expect(instance1Data.length).to.equal(instance2Data.length, "The number of charts should be the same.");
+
+        instance1Data.forEach((chartData, index) => {
+          const instance2ChartData = instance2Data[index];
+
+          expect(chartData.title).to.equal(instance2ChartData.title, `Chart ${index + 1}: Titles should match.`);
+          
+          expect(chartData.id).to.equal(instance2ChartData.id, `Chart ${index + 1}: IDs should match.`);
+          expect(chartData.alignment).to.equal(instance2ChartData.alignment, `Chart ${index + 1}: Alignments should match.`);
+        });
+
+        cy.log("Comparison complete: Instance 1 and Instance 2 chart data are consistent.");
+      });
     });
   });
 });
