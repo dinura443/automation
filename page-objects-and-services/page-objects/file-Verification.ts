@@ -1,17 +1,22 @@
-import fs from "fs";
+import * as fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
 
 export class VerifyExporter {
   private ignoreFiles = ["metadata.yaml"];
-  private extractedBase: string; // Path for extracted files
-  private importBase: string;   // Path for imported files
+  private extractedBase: string;
+  private importBase: string;
 
   constructor(extractedBase: string, importBase: string) {
-    this.extractedBase = extractedBase;
-    this.importBase = importBase;
+    this.extractedBase = extractedBase; // e.g., Cypress.env("DASHBOARD_INSTANCE1")
+    this.importBase = importBase; // e.g., Cypress.env("DASHBOARD_INSTANCE2")
   }
 
+  /**
+   * Get the latest subdirectory within a base directory.
+   * @param baseDir The base directory to search.
+   * @returns The path to the latest subdirectory, or null if none exist.
+   */
   private getLatestSubDir(baseDir: string): string | null {
     const dirs = fs.readdirSync(baseDir)
       .map(name => path.join(baseDir, name))
@@ -23,13 +28,19 @@ export class VerifyExporter {
     return dirs[0];
   }
 
+  /**
+   * Recursively collect all YAML files in a directory, excluding ignored files and the "dashboards" folder.
+   * @param dir The directory to search.
+   * @param base The base directory for relative paths.
+   * @returns An array of relative paths to YAML files.
+   */
   private getAllYamlFiles(dir: string, base = dir): string[] {
     const files: string[] = [];
     fs.readdirSync(dir).forEach(file => {
       const fullPath = path.join(dir, file);
       const stat = fs.statSync(fullPath);
 
-      // Skip the 'dashboards' directory and its contents
+      // Skip the "dashboards" directory
       if (stat.isDirectory() && path.basename(fullPath) === "dashboards") {
         console.log(`Skipping directory: ${fullPath}`);
         return;
@@ -44,39 +55,52 @@ export class VerifyExporter {
     return files;
   }
 
+  /**
+   * Load and parse a YAML file.
+   * @param filePath The path to the YAML file.
+   * @returns The parsed YAML content.
+   */
   private loadYaml(filePath: string): any {
     const content = fs.readFileSync(filePath, "utf8");
     return yaml.load(content);
   }
 
-  private findDifferences(obj1: any, obj2: any, path: string = ""): string[] {
+  /**
+   * Recursively find differences between two objects.
+   * @param obj1 The first object to compare.
+   * @param obj2 The second object to compare.
+   * @param path The current path in the object hierarchy.
+   * @returns An array of difference messages.
+   */
+  private findDifferences(obj1: any, obj2: any, currentPath: string = ""): string[] {
     const differences: string[] = [];
 
-    // Compare keys in both objects
     const allKeys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
     allKeys.forEach(key => {
-      // Ignore the 'sqlalchemy_uri' key
-      if (key === "sqlalchemy_uri") {
-        return;
-      }
+      // Skip comparison for specific keys
+      if (key === "sqlalchemy_uri") return;
 
-      const currentPath = path ? `${path}.${key}` : key;
+      const newPath = currentPath ? `${currentPath}.${key}` : key;
 
       if (!(key in obj1)) {
-        differences.push(`Missing in exported: ${currentPath}`);
+        differences.push(`Missing in exported: ${newPath}`);
       } else if (!(key in obj2)) {
-        differences.push(`Missing in imported: ${currentPath}`);
+        differences.push(`Missing in imported: ${newPath}`);
       } else if (typeof obj1[key] === "object" && typeof obj2[key] === "object") {
         // Recursively compare nested objects
-        differences.push(...this.findDifferences(obj1[key], obj2[key], currentPath));
+        differences.push(...this.findDifferences(obj1[key], obj2[key], newPath));
       } else if (obj1[key] !== obj2[key]) {
-        differences.push(`Mismatch at ${currentPath}: Exported=${obj1[key]}, Imported=${obj2[key]}`);
+        differences.push(`Mismatch at ${newPath}: Exported=${obj1[key]}, Imported=${obj2[key]}`);
       }
     });
 
     return differences;
   }
 
+  /**
+   * Compare the contents of two directories containing YAML files.
+   * @returns An object indicating success and a summary of differences.
+   */
   public compare(): { success: boolean; summary: any } {
     const latestExtracted = this.getLatestSubDir(this.extractedBase);
     const latestImported = this.getLatestSubDir(this.importBase);
@@ -92,7 +116,7 @@ export class VerifyExporter {
     const files1 = this.getAllYamlFiles(latestExtracted);
     const files2 = this.getAllYamlFiles(latestImported);
 
-    // Filter out files in the 'dashboards' directory
+    // Filter out files in the "dashboards" directory
     const filterDashboards = (files: string[]) =>
       files.filter(file => !file.startsWith("dashboards/"));
 
@@ -125,7 +149,7 @@ export class VerifyExporter {
         if (diff.length > 0) {
           console.warn(`Content mismatch: ${file}`);
           differences++;
-          diff.forEach(d => console.warn(d)); // Log detailed differences
+          diff.forEach(d => console.warn(d));
         }
       }
     });

@@ -2,17 +2,16 @@ import { defineConfig } from "cypress";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
-import { VerifyExporter } from "./page-objects-and-services/page-objects/verify"; 
-// Import the VerifyExporter class
+import { VerifyExporter } from "./page-objects-and-services/page-objects/file-Verification";
+import { UiVerifier } from "./page-objects-and-services/page-objects/ui-Verification";
 
-// Load environment variables from .env
 dotenv.config();
+
 interface ChartData {
   title: string;
   id: string;
   alignment: string;
 }
-
 
 export default defineConfig({
   chromeWebSecurity: false,
@@ -23,20 +22,18 @@ export default defineConfig({
   env: {
     username: process.env.USERNAME,
     password: process.env.PASSWORD,
-    itemName: process.env.ITEM_NAME,
+    dashboard: process.env.DASHBOARD_NAME,
     downloadDir: process.env.DOWNLOAD_DIR,
-    importDir: process.env.IMPORT_DIR,
-    extractedFilesDir: process.env.EXTRACTED_FILES_DIR,
-    importVerifyDir: process.env.IMPORT_VERIFY_DIR,
-    localLoginUrl: process.env.LOCAL_LOGIN_URL,
-    hostedLoginUrl: process.env.HOSTED_LOGIN_URL,
-    dashboardUrl: process.env.DASHBOARD_URL,
-    hostedDashboardUrl: process.env.HOSTED_DASHBOARD_URL,
-    datapath: process.env.DATA_DIR
+    fixturesDir: process.env.FIXTURES,
+    instance1DashboardDir: process.env.DASHBOARD_INSTANCE1,
+    instance2DashboardDir: process.env.DASHBOARD_INSTANCE2,
+    instance1Login: process.env.INSTANCE1_LOGIN,
+    instance2Login: process.env.INSTANCE2_LOGIN,
+    instance1Dashboard: process.env.INSTANCE1_DASHBOARD,
+    instance2Dashboard: process.env.INSTANCE2_DASHBOARD,
+    datapath: process.env.DASHBOARD_UI,
   },
   e2e: {
-    
-    
     fixturesFolder: "cypress/fixtures",
     downloadsFolder: "cypress/downloads",
     defaultCommandTimeout: 3000,
@@ -45,20 +42,16 @@ export default defineConfig({
       require("@cypress/grep/src/plugin")(config);
       require("cypress-terminal-report/src/installLogsPrinter")(on);
 
-      // Existing tasks
-
+      // Task: Compare JSON files
       on("task", {
         compareJsonFiles({ file1, file2 }) {
           try {
-            // Resolve file paths
             const filePath1 = path.resolve(file1);
             const filePath2 = path.resolve(file2);
 
-            // Read and parse JSON files with explicit typing
             const data1: ChartData[] = JSON.parse(fs.readFileSync(filePath1, "utf8"));
             const data2: ChartData[] = JSON.parse(fs.readFileSync(filePath2, "utf8"));
 
-            // Perform comparison
             if (data1.length !== data2.length) {
               return {
                 success: false,
@@ -115,6 +108,7 @@ export default defineConfig({
         },
       });
 
+      // Task: Verify folders exist
       on("task", {
         verifyFoldersExist({ baseDir, folderNames }) {
           try {
@@ -134,8 +128,10 @@ export default defineConfig({
             return `Error verifying folders: ${errorMessage}`;
           }
         },
-        
-        
+      });
+
+      // Task: Get the latest file in a directory
+      on("task", {
         getLatestFile(downloadDir) {
           if (!fs.existsSync(downloadDir)) {
             console.error(`Directory not found: ${downloadDir}`);
@@ -153,7 +149,10 @@ export default defineConfig({
           console.log(`Found latest file: ${latestFile}`);
           return latestFile;
         },
-        
+      });
+
+      // Task: Move a file
+      on("task", {
         moveFile({ source, destination }) {
           try {
             const destDir = path.dirname(destination);
@@ -167,12 +166,16 @@ export default defineConfig({
             return `Error moving file: ${errorMessage}`;
           }
         },
+      });
+
+      // Task: Unzip a file
+      on("task", {
         unzipFile({ zipPath, extractDir }) {
           try {
             if (!fs.existsSync(zipPath)) {
               throw new Error(`ZIP file not found: ${zipPath}`);
             }
-            const AdmZip = require("adm-zip"); // Ensure adm-zip is installed
+            const AdmZip = require("adm-zip");
             const zip = new AdmZip(zipPath);
             zip.extractAllTo(extractDir, true);
             return `Successfully extracted ZIP file to: ${extractDir}`;
@@ -181,6 +184,10 @@ export default defineConfig({
             return `Error unzipping file: ${errorMessage}`;
           }
         },
+      });
+
+      // Task: Read a YAML file
+      on("task", {
         readYamlFile(filePath) {
           try {
             if (!fs.existsSync(filePath)) {
@@ -196,21 +203,34 @@ export default defineConfig({
         },
       });
 
-
+      // Task: Verify Superset files
       on("task", {
         verifySupersetFiles({ extractedFilesDir, importVerifyDir }) {
-          const verifier = new VerifyExporter(extractedFilesDir, importVerifyDir); // Pass paths to the constructor
+          const verifier = new VerifyExporter(extractedFilesDir, importVerifyDir);
           const result = verifier.compare();
-          return result; // Return the result object
+          return result;
         },
       });
+
+      // Task: Log messages to the console
       on("task", {
         log(message: string) {
-          console.log(message); // Print the message to the terminal
-          return null; // Cypress requires tasks to return something (null is fine here)
+          console.log(message);
+          return null;
         },
       });
-      on('task', {
+
+      // Task: Verify UI contents
+      on("task", {
+        verifyUiContents({ dataPath, itemName }) {
+          const uiVerifier = new UiVerifier(dataPath, itemName);
+          const result = uiVerifier.verify();
+          return result;
+        },
+      });
+
+      // Task: Write JSON data to a file
+      on("task", {
         writeJson({ filename, data }) {
           console.log(`Attempting to write JSON file: ${filename}`);
           console.log(`Data to write: ${JSON.stringify(data)}`);
@@ -223,22 +243,22 @@ export default defineConfig({
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
           console.log(`JSON data written to ${filePath}`);
           return null;
-        }
+        },
       });
 
-      on('task', {
+      // Task: Read a JSON file
+      on("task", {
         readJsonFile({ filename }) {
-          const filePath = path.join(__dirname, '..', '..', 'fixtures', 'data', filename); // Adjust path if using custom folder
+          const filePath = path.join(__dirname, '..', '..', 'fixtures', 'data', filename);
           if (fs.existsSync(filePath)) {
             return JSON.parse(fs.readFileSync(filePath, 'utf8'));
           } else {
-            return null; // If file doesn't exist
+            return null;
           }
-        }
+        },
       });
 
-      
-      return config; 
-      },
+      return config;
+    },
   },
 });

@@ -1,6 +1,8 @@
+
+
 export class DashBoard {
-  dashboardUrl = Cypress.env("dashboardUrl");
-  hostedDashboardUrl = Cypress.env("hostedDashboardUrl");
+  instance1Dashboard = Cypress.env("instance1Dashboard");
+  instance2Dashboard = Cypress.env("instance2Dashboard");
   tableRowSelector = 'tr[role="row"]';
   itemNameSelector = "td a";
   shareButtonSelector = 'span[aria-label="share"]';
@@ -10,17 +12,18 @@ export class DashBoard {
 
   importbutton = "//span[normalize-space()='Import']";
 
-  visitDashboardPage() {
-    cy.visit(this.dashboardUrl);
+  visitInstance1Dashboard() {
+    cy.visit(this.instance1Dashboard);
   }
 
-  visitHostedDashboardPage() {
-    cy.visit(this.hostedDashboardUrl);
+  visitInstance2Dashboard() {
+    cy.visit(this.instance2Dashboard);
   }
 
   findRowByItemName(itemName: string) {
     cy.log(`Searching for item name: "${itemName}"`);
-    return cy.contains(this.itemNameSelector, itemName, { timeout: 10000 })
+    cy.wait(1000);
+    return cy.contains(this.itemNameSelector, itemName, { timeout: 20000 })
       .should("exist")
       .and("be.visible")
       .then(($element) => {
@@ -35,7 +38,7 @@ export class DashBoard {
     cy.contains(this.itemNameSelector, itemName, { timeout: 10000 })
       .should('exist')
       .and('be.visible')
-      .click({ force: true }); 
+      .click({ force: true });
     cy.log(`Successfully clicked on item name: "${itemName}"`);
   }
 
@@ -54,42 +57,42 @@ export class DashBoard {
 
   getDashboardCharts(itemName: string) {
     const scrapedCharts: any[] = [];
-  
+
     return cy.get('.chart-slice[data-test-chart-id]').then($charts => {
       const chartCount = $charts.length;
       cy.log(`Total number of charts detected: ${chartCount}`);
-  
+
       $charts.each((index, chartEl) => {
         const $chart = Cypress.$(chartEl);
-  
+
         const chartId = $chart.attr('data-test-chart-id');
         const chartName = $chart.attr('data-test-chart-name');
-  
+
         const extractTitle = () => {
           return $chart.find('.header-title .editable-title a').text().trim();
         };
-  
+
         let title = extractTitle();
-  
+
         if (!title) {
           cy.wait(500); // Retry wait
           title = extractTitle();
         }
-  
+
         if (!title) {
           cy.log(`Warning: Chart ${index + 1} (ID: ${chartId}) does not have a valid title.`);
         } else {
           cy.log(`Chart ${index + 1}: Title - ${title}`);
         }
-  
+
         cy.log(`Chart ${index + 1}: ID - ${chartId}`);
         cy.log(`Chart ${index + 1}: Name - ${chartName}`);
-  
+
         const alignment = $chart.closest('.dragdroppable-column').length
           ? `Column ${$chart.closest('.dragdroppable-column').index() + 1}`
           : 'Unknown Alignment';
         cy.log(`Chart ${index + 1}: Alignment - ${alignment}`);
-  
+
         // Push chart data to the array
         scrapedCharts.push({
           index: index + 1,
@@ -99,12 +102,12 @@ export class DashBoard {
           alignment: alignment,
         });
       });
-  
+
       cy.log(`Scraping complete: Found ${chartCount} charts for dashboard "${itemName}"`);
-      return cy.wrap(scrapedCharts); // 👈 return scraped data so caller can use it
+      return cy.wrap(scrapedCharts); // Return scraped data so caller can use it
     });
   }
-  
+
   uploadSpecificFile(targetUrl: string, filePath: string) {
     cy.visit(targetUrl);
     cy.get(this.importButtonSelector, { timeout: 10000 })
@@ -120,7 +123,7 @@ export class DashBoard {
       fileName: filePath.split('/').pop(),
     });
 
-    cy.xpath(this.importbutton,{ timeout: 500000 })
+    cy.xpath(this.importbutton, { timeout: 500000 })
       .should("be.visible")
       .click({ timeout: 500000 });
   }

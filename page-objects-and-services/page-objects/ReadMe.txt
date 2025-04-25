@@ -1,1 +1,0 @@
-In this directory the pages of the web application are stored. The web elements, methods to interact and verify with elements are included in these web pages.
