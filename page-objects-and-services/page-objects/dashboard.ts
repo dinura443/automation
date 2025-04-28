@@ -32,7 +32,6 @@ export class DashBoard {
       });
   }
 
-  // Click on the specific dashboard item by name
   clickItemName(itemName: string) {
     cy.log(`Clicking on item name: "${itemName}"`);
     cy.contains(this.itemNameSelector, itemName, { timeout: 10000 })
@@ -93,7 +92,6 @@ export class DashBoard {
           : 'Unknown Alignment';
         cy.log(`Chart ${index + 1}: Alignment - ${alignment}`);
 
-        // Push chart data to the array
         scrapedCharts.push({
           index: index + 1,
           id: chartId,
@@ -104,7 +102,7 @@ export class DashBoard {
       });
 
       cy.log(`Scraping complete: Found ${chartCount} charts for dashboard "${itemName}"`);
-      return cy.wrap(scrapedCharts); // Return scraped data so caller can use it
+      return cy.wrap(scrapedCharts); 
     });
   }
 

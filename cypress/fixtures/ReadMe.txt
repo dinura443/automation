@@ -1,1 +1,0 @@
-The static test data which is used for test executions are stored.

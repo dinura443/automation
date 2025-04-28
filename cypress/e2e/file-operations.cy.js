@@ -10,7 +10,7 @@ const overwriteButtonSelector = 'button:contains("Overwrite")';
 
 describe("Export the Dashboard ( instance : 1 )", () => {
   const downloadDirectory = Cypress.env("downloadDir");
-  const targetDirectory = Cypress.env("backupDir"); // New: Target directory for the copied file
+  const targetDirectory = Cypress.env("backupDir"); 
   const fixturesDir = Cypress.env("fixturesDir");
   const instance1Dir = Cypress.env("instance1DashboardDir");
 
@@ -33,7 +33,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
 
     cy.log("Step 2: Navigating to the dashboard page...");
     dashboard.visitInstance1Dashboard();
-    cy.wait(5000);
+    cy.wait(1000);
 
     cy.log("Step 3: Clicking on the item name...");
     const itemName = Cypress.env("dashboard");
@@ -49,19 +49,17 @@ describe("Export the Dashboard ( instance : 1 )", () => {
 
 
     
-    // Step 5: Get the latest downloaded file
     cy.task("getLatestFile", downloadDirectory).then((latestFilePath) => {
       if (!latestFilePath) {
         throw new Error(`No files found in directory: ${downloadDirectory}`);
       }
-      const fileName = path.basename(latestFilePath); // Extract the file name
-      const targetPath = path.join(targetDirectory, fileName); // Construct the target path
+      const fileName = path.basename(latestFilePath); 
+      const targetPath = path.join(targetDirectory, fileName); 
 
       cy.log(`Step 6: Copying the downloaded file to the target directory...`);
       cy.log(`Source file: ${latestFilePath}`);
       cy.log(`Target directory: ${targetDirectory}`);
 
-      // Copy the file to the target directory
       
 
       const desiredFilePath = `${desiredDownloadPath}/${fileName}`;
@@ -131,25 +129,23 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       dashboard.clickShareButtonForRow(itemName);
       cy.wait(5000);
   
-      // Step 5: Get the latest downloaded file
       cy.task("getLatestFile", downloadDirectory).then((latestFilePath) => {
         if (!latestFilePath) {
           throw new Error(`No files found in directory: ${downloadDirectory}`);
         }
   
-        const fileName = path.basename(latestFilePath); // Extract the file name
-        const targetPath = path.join(targetDirectory, fileName); // Construct the target path
+        const fileName = path.basename(latestFilePath); 
+        const targetPath = path.join(targetDirectory, fileName); 
   
         cy.log(`Step 6: Copying the downloaded file to the target directory...`);
         cy.log(`Source file: ${latestFilePath}`);
         cy.log(`Target directory: ${targetDirectory}`);
   
-        // Copy the file to the target directory
         cy.task("copyFile", {
           source: latestFilePath,
           destination: targetPath,
         }).then((result) => {
-          cy.log(result); // Log the result of the copy operation
+          cy.log(result); 
         });
       });
     });
@@ -170,10 +166,9 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       const itemName = Cypress.env("dashboard");
       cy.wait(1000);
 
-      const instanceLabel = 'instance1'; // Label for instance 1
+      const instanceLabel = 'instance1'; 
       const fileName = `${instanceLabel}_${itemName}_charts.json`;
-      const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; // Save to cypress/fixtures
-  
+      const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; 
       cy.log(`Searching for item name: "${itemName}"`);
       dashboard.findRowByItemName(itemName)
         .should("exist")
@@ -189,7 +184,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
   
       dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
         cy.task('writeJson', {
-          filename: fixturesFilePath, // Save the file in cypress/fixtures
+          filename: fixturesFilePath,
           data: scrapedChartData,
         });
         cy.wait(1000);
@@ -269,10 +264,9 @@ describe("Login, Navigate, Scraped and Click on Specific Dashboard ( instance : 
     cy.wait(5000);
 
     const itemName = Cypress.env("dashboard");
-    const instanceLabel = 'instance2'; // Label for instance 2
+    const instanceLabel = 'instance2'; 
     const fileName = `${instanceLabel}_${itemName}_charts.json`;
-    const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; // Save to cypress/fixtures
-
+    const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; 
     cy.log(`Searching for item name: "${itemName}"`);
     dashboard.findRowByItemName(itemName)
       .should("exist")

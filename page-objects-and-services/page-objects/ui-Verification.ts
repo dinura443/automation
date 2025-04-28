@@ -6,29 +6,20 @@ export class UiVerifier {
   private itemName: string;
 
   constructor(dataPath: string, itemName: string) {
-    this.dataPath = dataPath; // e.g., Cypress.env("DASHBOARD_UI")
-    this.itemName = itemName; // e.g., Cypress.env("DASHBOARD_NAME")
+    this.dataPath = dataPath; 
+    this.itemName = itemName; 
   }
 
-  /**
-   * Load and parse a JSON file.
-   * @param filePath The path to the JSON file.
-   * @returns The parsed JSON content.
-   */
+ 
   private loadJson(filePath: string): any {
     if (!fs.existsSync(filePath)) {
       throw new Error(`File not found: ${filePath}`);
     }
     const fileContent = fs.readFileSync(filePath, "utf8");
     return JSON.parse(fileContent);
-  }  //compare
+  } 
 
-  /**
-   * Compare UI elements between two instances.
-   * @param instance1Data The chart data for Instance 1.
-   * @param instance2Data The chart data for Instance 2.
-   * @returns An object indicating success and a summary of differences.
-   */
+ 
   private compareUiElements(instance1Data: any[], instance2Data: any[]): { success: boolean; summary: any } {
     const differences: string[] = [];
 
@@ -65,10 +56,7 @@ export class UiVerifier {
     };
   }
 
-  /**
-   * Verify the UI contents of two instances.
-   * @returns An object indicating success and a summary of differences.
-   */
+  
   public verify(): { success: boolean; summary: any } {
     const instance1FilePath = path.join(this.dataPath, `instance1_${this.itemName}_charts.json`);
     const instance2FilePath = path.join(this.dataPath, `instance2_${this.itemName}_charts.json`);
