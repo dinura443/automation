@@ -1,0 +1,52 @@
+name: Cypress Tests
+
+on:
+  # Trigger the workflow on push or pull request to the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Use the Node.js version compatible with your project
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 4: Run Cypress tests
+      - name: Run Cypress Tests
+        uses: cypress-io/github-action@v5
+        with:
+          browser: chrome # Specify the browser to run tests in
+          start: npm run start # Command to start your application (if needed)
+          wait-on: http://localhost:3000 # Wait for your app to be ready (adjust URL as needed)
+
+      # Step 5: Upload test artifacts (optional)
+      - name: Upload Test Artifacts
+        if: always() # Ensure this step runs even if tests fail
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-screenshots-and-videos
+          path: |
+            cypress/screenshots
+            cypress/videos
+
+      # Step 6: Generate a test report (optional)
+      - name: Generate Test Report
+        if: always()
+        run: npm run generate-report # Adjust this command based on your reporting setup
