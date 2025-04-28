@@ -38,22 +38,8 @@ jobs:
           echo "INSTANCE1_DASHBOARD=${{ secrets.INSTANCE1_DASHBOARD }}" >> .env
           echo "INSTANCE2_DASHBOARD=${{ secrets.INSTANCE2_DASHBOARD }}" >> .env
 
-      - name: Create Required Directories
-        run: |
-          mkdir -p ${{ env.DOWNLOAD_DIR }}
-          mkdir -p ${{ env.FIXTURES_DIR }}
-          mkdir -p ${{ env.BACKUP_DIR }}
-          mkdir -p ${{ env.INSTANCE1_DASHBOARD_DIR }}
-          mkdir -p ${{ env.INSTANCE2_DASHBOARD_DIR }}
-
-      - name: Validate .env File
-        run: |
-          if [ ! -f .env ]; then
-            echo ".env file is missing!"
-            exit 1
-          fi
-          grep -q "DOWNLOAD_DIR=" .env || { echo "Missing DOWNLOAD_DIR"; exit 1; }
-          grep -q "FIXTURES_DIR=" .env || { echo "Missing FIXTURES_DIR"; exit 1; }
+      - name: unset variable
+        run: npm run unset
 
       - name: Run Cypress Tests
         run: npx cypress run
