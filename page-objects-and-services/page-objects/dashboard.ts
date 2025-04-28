@@ -62,7 +62,7 @@ export class DashBoard {
       const chartCount = $charts.length;
       cy.log(`Total number of charts detected: ${chartCount}`);
 
-      $charts.each((index, chartEl) => {
+      $charts.each((index : number, chartEl: HTMLElement) => {
         const $chart = Cypress.$(chartEl);
 
         const chartId = $chart.attr('data-test-chart-id');

@@ -20,6 +20,11 @@ export default defineConfig({
     openMode: 0,
   },
   env: {
+
+    archiveDir: "archives",
+
+    
+
     username: process.env.USERNAME,
     password: process.env.PASSWORD,
     dashboard: process.env.DASHBOARD_NAME,
@@ -32,6 +37,7 @@ export default defineConfig({
     instance1Dashboard: process.env.INSTANCE1_DASHBOARD,
     instance2Dashboard: process.env.INSTANCE2_DASHBOARD,
     datapath: process.env.DASHBOARD_UI,
+    backupDir: process.env.BACKUP
   },
   e2e: {
     fixturesFolder: "cypress/fixtures",
@@ -42,7 +48,9 @@ export default defineConfig({
       require("@cypress/grep/src/plugin")(config);
       require("cypress-terminal-report/src/installLogsPrinter")(on);
 
-      // Task: Compare JSON files
+
+
+
       on("task", {
         compareJsonFiles({ file1, file2 }) {
           try {
@@ -130,6 +138,22 @@ export default defineConfig({
         },
       });
 
+      on("task", {
+        copyFile({ source, destination }) {
+          try {
+            const destDir = path.dirname(destination);
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true });
+            }
+            fs.copyFileSync(source, destination); // Copy the file to the target directory
+            return `File copied successfully from ${source} to ${destination}`;
+          } catch (error) {
+            const errorMessage = (error as Error).message;
+            return `Error copying file: ${errorMessage}`;
+          }
+        },
+      });
+
       // Task: Get the latest file in a directory
       on("task", {
         getLatestFile(downloadDir) {
@@ -182,6 +206,7 @@ export default defineConfig({
           } catch (error) {
             const errorMessage = (error as Error).message;
             return `Error unzipping file: ${errorMessage}`;
+            
           }
         },
       });
@@ -232,17 +257,16 @@ export default defineConfig({
       // Task: Write JSON data to a file
       on("task", {
         writeJson({ filename, data }) {
-          console.log(`Attempting to write JSON file: ${filename}`);
-          console.log(`Data to write: ${JSON.stringify(data)}`);
-          const dir = path.join(__dirname, 'data');
-          if (!fs.existsSync(dir)) {
-            console.log(`Creating directory: ${dir}`);
-            fs.mkdirSync(dir, { recursive: true });
+          try {
+            const dir = path.dirname(filename);
+            if (!fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true }); // Create directory if it doesn't exist
+            }
+            fs.writeFileSync(filename, JSON.stringify(data, null, 2), "utf8");
+            return `File written successfully: ${filename}`;
+          } catch (error) {
+            return `Error writing file: ${(error as Error).message}`;
           }
-          const filePath = path.join(dir, filename);
-          fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-          console.log(`JSON data written to ${filePath}`);
-          return null;
         },
       });
 
