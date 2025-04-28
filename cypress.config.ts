@@ -44,10 +44,11 @@ export default defineConfig({
 
   },
   e2e: {
+    video: true, // Ensure videos are enabled
+    screenshotOnRunFailure: true, // Ensure screenshots are generated on failure
     fixturesFolder: "cypress/fixtures",
     downloadsFolder: "cypress/downloads",
     defaultCommandTimeout: 3000,
-    video: false,
     setupNodeEvents(on, config) {
       require("@cypress/grep/src/plugin")(config);
       require("cypress-terminal-report/src/installLogsPrinter")(on);
