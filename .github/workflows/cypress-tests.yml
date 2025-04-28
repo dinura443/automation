@@ -1,4 +1,4 @@
-name: Cypress Tests Workflow
+name: insight cypress-tests
 
 on:
   push:
@@ -10,80 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '20'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Create .env file dynamically
       - name: Create .env file
         run: |
-          echo "ROOT_DIR=./" >> .env
-          echo "DOWNLOAD_DIR=./downloads" >> .env
-          echo "FIXTURES=./cypress/fixtures" >> .env
-          echo "BACKUP=./backups" >> .env
-          echo "DASHBOARD_INSTANCE1=./instance1_dashboard" >> .env
-          echo "DASHBOARD_INSTANCE2=./instance2_dashboard" >> .env
+          echo "USERNAME=${{ secrets.USERNAME }}" >> .env
+          echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
+          echo "DASHBOARD_NAME=${{ secrets.DASHBOARD_NAME }}" >> .env
+          echo "ROOT_DIR=${{ secrets.ROOT_DIR }}" >> .env
+          echo "DOWNLOAD_DIR=${{ secrets.DOWNLOAD_DIR }}" >> .env
+          echo "FIXTURES=${{ secrets.FIXTURES }}" >> .env
+          echo "DASHBOARD_INSTANCE1=${{ secrets.DASHBOARD_INSTANCE1 }}" >> .env
+          echo "DASHBOARD_INSTANCE2=${{ secrets.DASHBOARD_INSTANCE2 }}" >> .env
+          echo "DASHBOARD_UI=${{ secrets.DASHBOARD_UI }}" >> .env
+          echo "BACKUP=${{ secrets.BACKUP }}" >> .env
           echo "INSTANCE1_LOGIN=${{ secrets.INSTANCE1_LOGIN }}" >> .env
           echo "INSTANCE2_LOGIN=${{ secrets.INSTANCE2_LOGIN }}" >> .env
           echo "INSTANCE1_DASHBOARD=${{ secrets.INSTANCE1_DASHBOARD }}" >> .env
           echo "INSTANCE2_DASHBOARD=${{ secrets.INSTANCE2_DASHBOARD }}" >> .env
-          echo "DASHBOARD_UI=./dashboard_ui" >> .env
-          echo "USERNAME=${{ secrets.USERNAME }}" >> .env
-          echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
-          echo "DASHBOARD_NAME=${{ secrets.DASHBOARD_NAME }}" >> .env
 
-      # Step 5: Validate required directories exist
-      - name: Validate Directories
-        run: |
-          mkdir -p ./downloads
-          mkdir -p ./cypress/fixtures
-          mkdir -p ./backups
-          mkdir -p ./instance1_dashboard
-          mkdir -p ./instance2_dashboard
-          mkdir -p ./dashboard_ui
+      - name: unset variable
+        run: npm run unset
 
-      # Step 6: Clear directories before running tests
-      - name: Clear Directories
-        run: |
-          rm -rf ./downloads/*
-          rm -rf ./cypress/fixtures/*
-          rm -rf ./backups/*
-          rm -rf ./instance1_dashboard/*
-          rm -rf ./instance2_dashboard/*
-          rm -rf ./dashboard_ui/*
-
-      # Step 7: Run Cypress tests
       - name: Run Cypress Tests
         run: npx cypress run
         continue-on-error: true
-
-      # Step 8: Generate and upload test reports
-      - name: Generate Allure Report
-        if: always()
-        run: |
-          allure generate ./allure-results --clean
-          allure open
-
-      - name: Upload Test Artifacts
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-results
-          path: |
-            ./allure-results
-            ./cypress/downloads
-            ./cypress/fixtures
-            ./backups
-            ./instance1_dashboard
-            ./instance2_dashboard
-            ./dashboard_ui
