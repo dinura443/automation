@@ -63,7 +63,7 @@ jobs:
       # Step 6: Upload test artifacts (optional)
       - name: Upload Test Artifacts
         if: always() # Ensure this step runs even if tests fail
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: cypress-screenshots-and-videos
           path: |
