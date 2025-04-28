@@ -33,12 +33,14 @@ describe("Export the Dashboard ( instance : 1 )", () => {
 
     cy.log("Step 2: Navigating to the dashboard page...");
     dashboard.visitInstance1Dashboard();
-    cy.wait(1000);
+    cy.wait(5000);
 
     cy.log("Step 3: Clicking on the item name...");
     const itemName = Cypress.env("dashboard");
     cy.log(`Using item name: ${itemName}`);
     dashboard.findRowByItemName(itemName);
+    cy.wait(2000);
+
 
     cy.log("Step 4: Triggering file download...");
     dashboard.clickShareButtonForRow(itemName);
@@ -111,7 +113,9 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       cy.log(`Item Name: ${Cypress.env("dashboard")}`); // Debug log
   
       cy.log("Step 1: Logging in...");
-      login.visitHostedLoginPage(); // For instance2
+      login.visitHostedLoginPage();
+      cy.wait(2000);
+
       login.enterUsername(Cypress.env("username"));
       login.enterPassword(Cypress.env("password"));
       login.clickLoginButton();
@@ -124,7 +128,8 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       const itemName = Cypress.env("dashboard");
       cy.log(`Using item name: ${itemName}`);
       dashboard.findRowByItemName(itemName);
-  
+      cy.wait(2000);
+
       cy.log("Step 4: Triggering file download...");
       dashboard.clickShareButtonForRow(itemName);
       cy.wait(5000);

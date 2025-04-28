@@ -21,6 +21,10 @@ jobs:
 
           - name: Install dependencies
             run: npm install
+
+
+          - name: unset variable
+            run: npm run unset 
     
           - name: Run Cypress Tests
             run: npx cypress run 
