@@ -3,7 +3,7 @@
 export class DashBoard {
   instance1Dashboard = Cypress.env("instance1Dashboard");
   instance2Dashboard = Cypress.env("instance2Dashboard");
-  tableRowSelector = 'tr[role="row"]';
+  tableRowSelector = 'tr[role="row"]'; //ll
   itemNameSelector = "td a";
   shareButtonSelector = 'span[aria-label="share"]';
   importButtonSelector = 'button > span[aria-label="import"]';
