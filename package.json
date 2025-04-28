@@ -11,8 +11,8 @@
     "allure:publish": "node ./allure.publish.js",
     "mochawesome:merge": "node ./cypress/scripts/mochawesome.merge.js",
     "html:report:summary:generate": "npx marge cypress/report/mochawesome-report/mochawesome.json --reportDir HTMLSummary --inline",
-    "generate-report": "mochawesome-report-generator cypress/reports/mocha/*.json --reportDir cypress/reports/html"
-
+    "generate-report": "mochawesome-report-generator cypress/reports/mocha/*.json --reportDir cypress/reports/html",
+    "run automation ":"npx cypress run "
   },
   "keywords": [
     "qbitum",
