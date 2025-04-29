@@ -167,14 +167,11 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)
     cy.log("Waiting for the dashboard page to load...");
 
     // Intercept API calls and add Authorization Header
-    cy.intercept('GET', '/api/v1/dashboard/18*', (req) => {
+    cy.intercept('GET', '/api/v1/dashboard/18', (req) => {
       req.headers['Authorization'] = `Bearer ${Cypress.env('authToken')}`;
       cy.log('Intercepted request to /api/v1/dashboard/18');
       req.continue((res) => {
         cy.log(`Response status: ${res.statusCode}`);
-        if (res.statusCode === 401) {
-          cy.log('Unauthorized request: Check the authToken');
-        }
       });
     }).as('getDashboard');
 
@@ -258,7 +255,7 @@ describe("Import Dashboard ( instance : 2 )", () => {
       cy.log("Step 8: Moving the file to the desired directory...");
       cy.task("moveFile", {
         source: originalFilePath,
-        destination: `cypress/fixtures/${desiredDownloadPath}`,
+        destination: `cypress/fixtures/${desiredFilePath}`,
       }).then((result) => {
         cy.log(result);
       });
