@@ -1,9 +1,7 @@
-
-
 export class DashBoard {
-  instance1Dashboard = Cypress.env("instance1Dashboard");
-  instance2Dashboard = Cypress.env("instance2Dashboard");
-  tableRowSelector = 'tr[role="row"]'; //ll
+  instance1Dashboard = Cypress.env("INSTANCE1_DASHBOARD");
+  instance2Dashboard = Cypress.env("INSTANCE2_DASHBOARD");
+  tableRowSelector = 'tr[role="row"]';
   itemNameSelector = "td a";
   shareButtonSelector = 'span[aria-label="share"]';
   importButtonSelector = 'button > span[aria-label="import"]';
@@ -22,7 +20,6 @@ export class DashBoard {
 
   findRowByItemName(itemName: string) {
     cy.log(`Searching for item name: "${itemName}"`);
-    cy.wait(1000);
     return cy.contains(this.itemNameSelector, itemName, { timeout: 20000 })
       .should("exist")
       .and("be.visible")
@@ -61,7 +58,7 @@ export class DashBoard {
       const chartCount = $charts.length;
       cy.log(`Total number of charts detected: ${chartCount}`);
 
-      $charts.each((index : number, chartEl: HTMLElement) => {
+      $charts.each((index: number, chartEl: HTMLElement) => {
         const $chart = Cypress.$(chartEl);
 
         const chartId = $chart.attr('data-test-chart-id');
@@ -102,7 +99,7 @@ export class DashBoard {
       });
 
       cy.log(`Scraping complete: Found ${chartCount} charts for dashboard "${itemName}"`);
-      return cy.wrap(scrapedCharts); 
+      return cy.wrap(scrapedCharts);
     });
   }
 

@@ -4,19 +4,19 @@ export class LoginPage {
   loginButton = "#kc-login";
 
   visitLoginPage() {
-    cy.visit(Cypress.env("instance1Login"));
+    cy.visit(Cypress.env("INSTANCE1_LOGIN"));
   }
 
   visitHostedLoginPage() {
-    cy.visit(Cypress.env("instance2Login"));
+    cy.visit(Cypress.env("INSTANCE2_LOGIN"));
   }
 
   enterUsername() {
-    cy.get(this.usernameInput).clear().type(Cypress.env("username"));
+    cy.get(this.usernameInput).clear().type(Cypress.env("USERNAME"));
   }
 
   enterPassword() {
-    cy.get(this.passwordInput).clear().type(Cypress.env("password"));
+    cy.get(this.passwordInput).clear().type(Cypress.env("PASSWORD"));
   }
 
   clickLoginButton() {
