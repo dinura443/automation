@@ -21,24 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create .env file
-        run: |
-          echo "USERNAME=${{ secrets.USERNAME }}" >> .env
-          echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
-          echo "DASHBOARD_NAME=${{ secrets.DASHBOARD_NAME }}" >> .env
-          echo "ROOT_DIR=${{ secrets.ROOT_DIR }}" >> .env
-          echo "DOWNLOAD_DIR=${{ secrets.DOWNLOAD_DIR }}" >> .env
-          echo "FIXTURES=${{ secrets.FIXTURES }}" >> .env
-          echo "DASHBOARD_INSTANCE1=${{ secrets.DASHBOARD_INSTANCE1 }}" >> .env
-          echo "DASHBOARD_INSTANCE2=${{ secrets.DASHBOARD_INSTANCE2 }}" >> .env
-          echo "DASHBOARD_UI=${{ secrets.DASHBOARD_UI }}" >> .env
-          echo "BACKUP=${{ secrets.BACKUP }}" >> .env
-          echo "INSTANCE1_LOGIN=${{ secrets.INSTANCE1_LOGIN }}" >> .env
-          echo "INSTANCE2_LOGIN=${{ secrets.INSTANCE2_LOGIN }}" >> .env
-          echo "INSTANCE1_DASHBOARD=${{ secrets.INSTANCE1_DASHBOARD }}" >> .env
-          echo "INSTANCE2_DASHBOARD=${{ secrets.INSTANCE2_DASHBOARD }}" >> .env
-
-      - name: unset variable
+      - name: Unset variable (if needed)
         run: npm run unset
 
       - name: Run Cypress Tests
