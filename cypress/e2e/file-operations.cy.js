@@ -156,69 +156,52 @@ describe("Export the Dashboard ( instance : 1 )", () => {
     });
   });
 
-describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)", () => {
-  it("Should login, navigate to dashboard, scrape charts and open the specific dashboard", () => {
-    cy.log("Logging in...");
-    login.visitLoginPage();
-    login.enterUsername(Cypress.env("username"));
-    login.enterPassword(Cypress.env("password"));
-    login.clickLoginButton();
 
-    cy.log("Waiting for the dashboard page to load...");
+  
+  describe("Login, Navigate, Scrape and Click on Specific Dashboard ( instance : 1 )", () => {
+    it("Should login, navigate to dashboard, scrape charts and open the specific dashboard", () => {
+      cy.log("Logging in...");
+      login.visitLoginPage();
+      login.enterUsername(Cypress.env("username"));
+      login.enterPassword(Cypress.env("password"));
+      login.clickLoginButton();
+  
+      dashboard.visitInstance1Dashboard();
+      cy.wait(5000);
+  
+      const itemName = Cypress.env("dashboard");
 
-    // Intercept API calls and add Authorization Header
-    cy.intercept('GET', '/api/v1/dashboard/18', (req) => {
-      req.headers['Authorization'] = `Bearer ${Cypress.env('authToken')}`;
-      cy.log('Intercepted request to /api/v1/dashboard/18');
-      req.continue((res) => {
-        cy.log(`Response status: ${res.statusCode}`);
-      });
-    }).as('getDashboard');
+      const instanceLabel = 'instance1'; 
+      const fileName = `${instanceLabel}_${itemName}_charts.json`;
+      const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; 
+      cy.log(`Searching for item name: "${itemName}"`);
+      cy.wait(5000);
 
-    cy.intercept('GET', '/api/v1/dashboard/_info*', (req) => {
-      req.headers['Authorization'] = `Bearer ${Cypress.env('authToken')}`;
-    }).as('getDashboardInfo');
+      dashboard.findRowByItemName(itemName)
+        .should("exist")
+        .and("be.visible")
+        .then(() => {
+          cy.log(`Found "${itemName}" on the dashboard.`);
+          dashboard.clickItemName(itemName);
+          cy.wait(2000);
+          cy.log("Waiting for dashboard charts to load...");
+          cy.get('.dashboard-component', { timeout: 5000 }).should('exist');
+          cy.log("Scraping charts on the specific dashboard...");
+          dashboard.getDashboardCharts(itemName);
+          cy.wait(1000);
 
-    // Navigate to the dashboard
-    dashboard.visitInstance1Dashboard();
-
-    // Wait for API calls to complete
-    cy.wait('@getDashboard', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
-    cy.wait('@getDashboardInfo', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
-
-    // Wait for the dashboard component to appear
-    cy.get('.dashboard-component', { timeout: 20000 })
-      .should('exist')
-      .and('be.visible');
-
-    const itemName = Cypress.env("dashboard");
-    const instanceLabel = 'instance1'; 
-    const fileName = `${instanceLabel}_${itemName}_charts.json`;
-    const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; 
-
-    cy.log(`Searching for item name: "${itemName}"`);
-    dashboard.findRowByItemName(itemName)
-      .should("exist")
-      .and("be.visible")
-      .then(() => {
-        cy.log(`Found "${itemName}" on the dashboard.`);
-        dashboard.clickItemName(itemName);
-
-        cy.log("Waiting for dashboard charts to load...");
-        cy.get('.dashboard-component', { timeout: 10000 })
-          .should('exist')
-          .and('be.visible');
-
-        cy.log("Scraping charts on the specific dashboard...");
-        dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
-          cy.task('writeJson', {
-            filename: fixturesFilePath,
-            data: scrapedChartData,
-          });
         });
+  
+      dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
+        cy.task('writeJson', {
+          filename: fixturesFilePath,
+          data: scrapedChartData,
+        });
+        cy.wait(5000);
       });
+    });
   });
-});
+
 
 describe("Import Dashboard ( instance : 2 )", () => {
   const targetUrl = Cypress.env("instance2Dashboard");
@@ -368,7 +351,7 @@ describe("Export File for Verification ( instance : 2 )", () => {
       cy.log("Step 8: Moving the file to the desired directory...");
       cy.task("moveFile", {
         source: originalFilePath,
-        destination: `cypress/fixtures/${desiredDownloadPath}`,
+        destination: `cypress/fixtures/${desiredFilePath}`,
       }).then((result) => {
         cy.log(result);
       });
