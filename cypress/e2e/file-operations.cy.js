@@ -182,7 +182,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
           cy.log(`Found "${itemName}" on the dashboard.`);
           dashboard.clickItemName(itemName);
           cy.log("Waiting for dashboard charts to load...");
-          cy.get('.dashboard-component', { timeout: 10000 }).should('exist');
+          cy.get('.dashboard-component', { timeout: 5000 }).should('exist');
           cy.log("Scraping charts on the specific dashboard...");
           dashboard.getDashboardCharts(itemName);
         });
@@ -192,7 +192,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
           filename: fixturesFilePath,
           data: scrapedChartData,
         });
-        cy.wait(1000);
+        cy.wait(5000);
       });
     });
   });
