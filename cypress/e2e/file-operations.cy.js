@@ -166,7 +166,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       cy.wait(1000);
       cy.log("Navigating to dashboard page...");
       dashboard.visitInstance1Dashboard();
-      cy.wait(5000);
+      cy.wait(1000);
   
       const itemName = Cypress.env("dashboard");
       cy.wait(1000);
@@ -175,16 +175,21 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       const fileName = `${instanceLabel}_${itemName}_charts.json`;
       const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; 
       cy.log(`Searching for item name: "${itemName}"`);
+      cy.wait(1000);
+
       dashboard.findRowByItemName(itemName)
         .should("exist")
         .and("be.visible")
         .then(() => {
           cy.log(`Found "${itemName}" on the dashboard.`);
           dashboard.clickItemName(itemName);
+          cy.wait(1000);
           cy.log("Waiting for dashboard charts to load...");
           cy.get('.dashboard-component', { timeout: 5000 }).should('exist');
           cy.log("Scraping charts on the specific dashboard...");
           dashboard.getDashboardCharts(itemName);
+          cy.wait(1000);
+
         });
   
       dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
