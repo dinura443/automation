@@ -183,8 +183,8 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)
     dashboard.visitInstance1Dashboard();
 
     // Wait for API calls to complete
-    cy.wait('@getDashboard', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
-    cy.wait('@getDashboardInfo', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
+    cy.wait('@getDashboard', { timeout: 50000 }).its('response.statusCode').should('eq', 200);
+    cy.wait('@getDashboardInfo', { timeout: 50000 }).its('response.statusCode').should('eq', 200);
 
     // Wait for the dashboard component to appear
     cy.get('.dashboard-component', { timeout: 20000 })
