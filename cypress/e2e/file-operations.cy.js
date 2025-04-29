@@ -9,11 +9,11 @@ const overwriteButtonSelector = 'button:contains("Overwrite")';
 
 
 describe("Export the Dashboard ( instance : 1 )", () => {
-  const path = require('path');
-  const downloadDirectory = path.resolve(Cypress.env.downloadDir);
-  const targetDirectory = path.resolve(Cypress.env.backupDir); 
-  const fixturesDir = path.resolve(Cypress.env.fixturesDir);
-  const instance1Dir = path.resolve(Cypress.env.instance1DashboardDir);
+  
+  const downloadDirectory = Cypress.env("downloadDir");
+  const targetDirectory = Cypress.env("backupDir"); 
+  const fixturesDir = Cypress.env("fixturesDir");
+  const instance1Dir = Cypress.env("instance1DashboardDir");
   const desiredDownloadPath = "downloads";
 
 
