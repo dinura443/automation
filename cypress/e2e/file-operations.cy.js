@@ -255,7 +255,7 @@ describe("Import Dashboard ( instance : 2 )", () => {
       cy.log("Step 8: Moving the file to the desired directory...");
       cy.task("moveFile", {
         source: originalFilePath,
-        destination: `cypress/fixtures/${desiredFilePath}`,
+        destination: `cypress/fixtures/${desiredDownloadPath}`,
       }).then((result) => {
         cy.log(result);
       });
