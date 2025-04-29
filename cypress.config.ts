@@ -20,24 +20,32 @@ export default defineConfig({
     openMode: 0,
   },
   env: {
-    ROOT_DIR: process.env.ROOT_DIR || './temp',
-    DOWNLOAD_DIR: process.env.DOWNLOAD_DIR || './temp/downloads',
-    FIXTURES_DIR: process.env.FIXTURES_DIR || './temp/fixtures',
-    DASHBOARD_INSTANCE1: process.env.DASHBOARD_INSTANCE1 || './temp/dashboard_instance1',
-    DASHBOARD_INSTANCE2: process.env.DASHBOARD_INSTANCE2 || './temp/dashboard_instance2',
-    DASHBOARD_UI: process.env.DASHBOARD_UI || './temp/UIComponents',
-    BACKUP_DIR: process.env.BACKUP_DIR || './temp/backups',
-    USERNAME: process.env.USERNAME,
-    PASSWORD: process.env.PASSWORD,
-    DASHBOARD_NAME: process.env.DASHBOARD_NAME,
-    INSTANCE1_LOGIN: process.env.INSTANCE1_LOGIN,
-    INSTANCE2_LOGIN: process.env.INSTANCE2_LOGIN,
-    INSTANCE1_DASHBOARD: process.env.INSTANCE1_DASHBOARD,
-    INSTANCE2_DASHBOARD: process.env.INSTANCE2_DASHBOARD,
+
+    archiveDir: "archives",
+
+    
+
+    
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD,
+    dashboard: process.env.DASHBOARD_NAME,
+    downloadDir: process.env.DOWNLOAD_DIR,
+    fixturesDir: process.env.FIXTURES,
+    instance1DashboardDir: process.env.DASHBOARD_INSTANCE1,
+    instance2DashboardDir: process.env.DASHBOARD_INSTANCE2,
+    instance1Login: process.env.INSTANCE1_LOGIN,
+    instance2Login: process.env.INSTANCE2_LOGIN,
+    instance1Dashboard: process.env.INSTANCE1_DASHBOARD,
+    instance2Dashboard: process.env.INSTANCE2_DASHBOARD,
+    datapath: process.env.DASHBOARD_UI,
+    backupDir: process.env.BACKUP,
+    rootDir : process.env.ROOT_DIR
+    
+
   },
   e2e: {
-    video: true,
-    screenshotOnRunFailure: true,
+    video: true, // Ensure videos are enabled
+    screenshotOnRunFailure: true, // Ensure screenshots are generated on failure
     fixturesFolder: "cypress/fixtures",
     downloadsFolder: "cypress/downloads",
     defaultCommandTimeout: 3000,
@@ -45,12 +53,15 @@ export default defineConfig({
       require("@cypress/grep/src/plugin")(config);
       require("cypress-terminal-report/src/installLogsPrinter")(on);
 
-      // Task: Compare JSON files
+
+
+
       on("task", {
         compareJsonFiles({ file1, file2 }) {
           try {
             const filePath1 = path.resolve(file1);
             const filePath2 = path.resolve(file2);
+
             const data1: ChartData[] = JSON.parse(fs.readFileSync(filePath1, "utf8"));
             const data2: ChartData[] = JSON.parse(fs.readFileSync(filePath2, "utf8"));
 
@@ -110,21 +121,23 @@ export default defineConfig({
         },
       });
 
-      // Task: Check if a directory is empty
+
+
+
       on("task", {
         isDirectoryEmpty(directoryPath: string): boolean {
           try {
             if (!fs.existsSync(directoryPath)) {
               throw new Error(`Directory does not exist: ${directoryPath}`);
             }
+      
             const files = fs.readdirSync(directoryPath);
-            return files.length === 0;
+            return files.length === 0; 
           } catch (error) {
             throw new Error(`Error checking directory: ${(error as Error).message}`);
           }
         },
       });
-
       // Task: Verify folders exist
       on("task", {
         verifyFoldersExist({ baseDir, folderNames }) {
@@ -147,7 +160,6 @@ export default defineConfig({
         },
       });
 
-      // Task: Copy a file
       on("task", {
         copyFile({ source, destination }) {
           try {
@@ -155,7 +167,7 @@ export default defineConfig({
             if (!fs.existsSync(destDir)) {
               fs.mkdirSync(destDir, { recursive: true });
             }
-            fs.copyFileSync(source, destination);
+            fs.copyFileSync(source, destination); 
             return `File copied successfully from ${source} to ${destination}`;
           } catch (error) {
             const errorMessage = (error as Error).message;
@@ -164,7 +176,6 @@ export default defineConfig({
         },
       });
 
-      // Task: Get the latest file in a directory
       on("task", {
         getLatestFile(downloadDir) {
           if (!fs.existsSync(downloadDir)) {
@@ -185,7 +196,6 @@ export default defineConfig({
         },
       });
 
-      // Task: Move a file
       on("task", {
         moveFile({ source, destination }) {
           try {
@@ -202,7 +212,6 @@ export default defineConfig({
         },
       });
 
-      // Task: Unzip a file
       on("task", {
         unzipFile({ zipPath, extractDir }) {
           try {
@@ -216,11 +225,11 @@ export default defineConfig({
           } catch (error) {
             const errorMessage = (error as Error).message;
             return `Error unzipping file: ${errorMessage}`;
+            
           }
         },
       });
 
-      // Task: Read a YAML file
       on("task", {
         readYamlFile(filePath) {
           try {
@@ -235,9 +244,8 @@ export default defineConfig({
             return `Error reading YAML file: ${errorMessage}`;
           }
         },
-      });//k
+      });
 
-      // Task: Verify Superset files
       on("task", {
         verifySupersetFiles({ extractedFilesDir, importVerifyDir }) {
           const verifier = new VerifyExporter(extractedFilesDir, importVerifyDir);
@@ -246,7 +254,6 @@ export default defineConfig({
         },
       });
 
-      // Task: Log messages
       on("task", {
         log(message: string) {
           console.log(message);
@@ -254,7 +261,7 @@ export default defineConfig({
         },
       });
 
-      // Task: Clear directory contents
+
       on("task", {
         clearDirectoryContents(directoryPath: string) {
           try {
@@ -262,18 +269,22 @@ export default defineConfig({
               console.log(`Directory does not exist: ${directoryPath}`);
               return `Directory does not exist: ${directoryPath}`;
             }
+      
             const files = fs.readdirSync(directoryPath);
+      
             files.forEach((file) => {
               const filePath = path.join(directoryPath, file);
               const stat = fs.statSync(filePath);
+      
               if (stat.isDirectory()) {
                 console.log(`Deleting subdirectory: ${filePath}`);
-                fs.rmSync(filePath, { recursive: true, force: true });
+                fs.rmSync(filePath, { recursive: true, force: true }); 
               } else {
                 console.log(`Deleting file: ${filePath}`);
-                fs.unlinkSync(filePath);
+                fs.unlinkSync(filePath); 
               }
             });
+      
             return `Cleared contents of directory: ${directoryPath}`;
           } catch (error) {
             return `Error clearing directory contents: ${(error as Error).message}`;
@@ -281,29 +292,31 @@ export default defineConfig({
         },
       });
 
-      // Task: Delete old backup files
-      on("task", {
-        deleteOldBackupFiles(backupsDir: string) {
-          try {
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - 7); // Delete files older than 7 days
-            const files = fs.readdirSync(backupsDir);
-            files.forEach((file) => {
-              const filePath = path.join(backupsDir, file);
-              const stat = fs.statSync(filePath);
-              if (stat.isFile() && stat.mtime < cutoffDate) {
-                console.log(`Deleting old backup file: ${filePath}`);
-                fs.unlinkSync(filePath);
-              }
-            });
-            return "Old backup files deleted successfully.";
-          } catch (error) {
-            return `Error deleting old backup files: ${(error as Error).message}`;
-          }
-        },
+on("task", {
+  deleteOldBackupFiles(backupsDir: string) {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - 7); 
+
+      const files = fs.readdirSync(backupsDir);
+
+      files.forEach((file) => {
+        const filePath = path.join(backupsDir, file);
+        const stat = fs.statSync(filePath);
+
+        if (stat.isFile() && stat.mtime < cutoffDate) {
+          console.log(`Deleting old backup file: ${filePath}`);
+          fs.unlinkSync(filePath); 
+        }
       });
 
-      // Task: Verify UI contents
+      return "Old backup files deleted successfully.";
+    } catch (error) {
+      return `Error deleting old backup files: ${(error as Error).message}`;
+    }
+  },
+});
+
       on("task", {
         verifyUiContents({ dataPath, itemName }) {
           const uiVerifier = new UiVerifier(dataPath, itemName);
@@ -312,13 +325,12 @@ export default defineConfig({
         },
       });
 
-      // Task: Write JSON data to a file
       on("task", {
         writeJson({ filename, data }) {
           try {
             const dir = path.dirname(filename);
             if (!fs.existsSync(dir)) {
-              fs.mkdirSync(dir, { recursive: true });
+              fs.mkdirSync(dir, { recursive: true }); 
             }
             fs.writeFileSync(filename, JSON.stringify(data, null, 2), "utf8");
             return `File written successfully: ${filename}`;
@@ -328,7 +340,6 @@ export default defineConfig({
         },
       });
 
-      // Task: Read a JSON file
       on("task", {
         readJsonFile({ filename }) {
           const filePath = path.join(__dirname, '..', '..', 'fixtures', 'data', filename);

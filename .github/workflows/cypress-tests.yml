@@ -1,66 +1,46 @@
-name: Cypress Tests
+name: insight cypress-tests
 
 on:
-  workflow_dispatch:
-    inputs:
-      username:
-        description: 'Username for Superset instances'
-        required: true
-      password:
-        description: 'Password for Superset instances'
-        required: true
-      dashboard_name:
-        description: 'Name of the dashboard to test'
-        required: true
-      instance1_login:
-        description: 'Login URL for Instance 1'
-        required: true
-      instance2_login:
-        description: 'Login URL for Instance 2'
-        required: true
-      instance1_dashboard:
-        description: 'Dashboard URL for Instance 1'
-        required: true
-      instance2_dashboard:
-        description: 'Dashboard URL for Instance 2'
-        required: true
+  push:
+    branches:
+      - main
 
 jobs:
-  cypress-run:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: '20'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Create Temporary Directory
-        run: mkdir -p ./temp/{downloads,fixtures,dashboard_instance1,dashboard_instance2,UIComponents,backups}
+      - name: Create .env file
+        run: |
+          echo "USERNAME=${{ secrets.USERNAME }}" >> .env
+          echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
+          echo "DASHBOARD_NAME=${{ secrets.DASHBOARD_NAME }}" >> .env
+          echo "ROOT_DIR=${{ secrets.ROOT_DIR }}" >> .env
+          echo "DOWNLOAD_DIR=${{ secrets.DOWNLOAD_DIR }}" >> .env
+          echo "FIXTURES=${{ secrets.FIXTURES }}" >> .env
+          echo "DASHBOARD_INSTANCE1=${{ secrets.DASHBOARD_INSTANCE1 }}" >> .env
+          echo "DASHBOARD_INSTANCE2=${{ secrets.DASHBOARD_INSTANCE2 }}" >> .env
+          echo "DASHBOARD_UI=${{ secrets.DASHBOARD_UI }}" >> .env
+          echo "BACKUP=${{ secrets.BACKUP }}" >> .env
+          echo "INSTANCE1_LOGIN=${{ secrets.INSTANCE1_LOGIN }}" >> .env
+          echo "INSTANCE2_LOGIN=${{ secrets.INSTANCE2_LOGIN }}" >> .env
+          echo "INSTANCE1_DASHBOARD=${{ secrets.INSTANCE1_DASHBOARD }}" >> .env
+          echo "INSTANCE2_DASHBOARD=${{ secrets.INSTANCE2_DASHBOARD }}" >> .env
+
+      - name: unset variable
+        run: npm run unset
 
       - name: Run Cypress Tests
-        env:
-          USERNAME: ${{ inputs.username }}
-          PASSWORD: ${{ inputs.password }}
-          DASHBOARD_NAME: ${{ inputs.dashboard_name }}
-          INSTANCE1_LOGIN: ${{ inputs.instance1_login }}
-          INSTANCE2_LOGIN: ${{ inputs.instance2_login }}
-          INSTANCE1_DASHBOARD: ${{ inputs.instance1_dashboard }}
-          INSTANCE2_DASHBOARD: ${{ inputs.instance2_dashboard }}
-          ROOT_DIR: ./temp
-          DOWNLOAD_DIR: ./temp/downloads
-          FIXTURES_DIR: ./temp/fixtures
-          DASHBOARD_INSTANCE1: ./temp/dashboard_instance1
-          DASHBOARD_INSTANCE2: ./temp/dashboard_instance2
-          DASHBOARD_UI: ./temp/UIComponents
-          BACKUP_DIR: ./temp/backups
         run: npx cypress run
-
-     
-
+        continue-on-error: true
