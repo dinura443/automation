@@ -165,10 +165,20 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)
     login.clickLoginButton();
 
     cy.log("Waiting for the dashboard page to load...");
+    
+    // Intercept API calls
+    cy.intercept('GET', '/api/v1/dashboard/?*').as('getDashboard');
+    cy.intercept('GET', '/api/v1/dashboard/_info*').as('getDashboardInfo');
+
+    // Navigate to the dashboard
     dashboard.visitInstance1Dashboard();
 
-    // Wait for the dashboard to load by checking for a specific element
-    cy.get('.dashboard-component', { timeout: 10000 })
+    // Wait for API calls to complete
+    cy.wait('@getDashboard');
+    cy.wait('@getDashboardInfo');
+
+    // Wait for the dashboard component to appear
+    cy.get('.dashboard-component', { timeout: 20000 })
       .should('exist')
       .and('be.visible');
 
