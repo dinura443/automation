@@ -206,7 +206,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
 describe("Import Dashboard ( instance : 2 )", () => {
   const targetUrl = Cypress.env("instance2Dashboard");
   const originalDownloadPath = Cypress.env("downloadDir");
-  const desiredDownloadPath = "downloads";
+  const desiredDownloadPath = Cypress.env("instance1DashboardDir");
 
 
 
