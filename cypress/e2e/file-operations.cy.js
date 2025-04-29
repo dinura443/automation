@@ -165,17 +165,22 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)
     login.clickLoginButton();
 
     cy.log("Waiting for the dashboard page to load...");
-    
-    // Intercept API calls
-    cy.intercept('GET', '/api/v1/dashboard/?*').as('getDashboard');
-    cy.intercept('GET', '/api/v1/dashboard/_info*').as('getDashboardInfo');
+
+    // Intercept API calls and add Authorization Header
+    cy.intercept('GET', '/api/v1/dashboard/18', (req) => {
+      req.headers['Authorization'] = `Bearer ${Cypress.env('authToken')}`;
+    }).as('getDashboard');
+
+    cy.intercept('GET', '/api/v1/dashboard/_info*', (req) => {
+      req.headers['Authorization'] = `Bearer ${Cypress.env('authToken')}`;
+    }).as('getDashboardInfo');
 
     // Navigate to the dashboard
     dashboard.visitInstance1Dashboard();
 
     // Wait for API calls to complete
-    cy.wait('@getDashboard');
-    cy.wait('@getDashboardInfo');
+    cy.wait('@getDashboard', { timeout: 20000 }).its('response.statusCode').should('eq', 200);
+    cy.wait('@getDashboardInfo', { timeout: 20000 }).its('response.statusCode').should('eq', 200);
 
     // Wait for the dashboard component to appear
     cy.get('.dashboard-component', { timeout: 20000 })
@@ -359,7 +364,7 @@ describe("Export File for Verification ( instance : 2 )", () => {
       cy.log("Step 8: Moving the file to the desired directory...");
       cy.task("moveFile", {
         source: originalFilePath,
-        destination: `cypress/fixtures/${desiredFilePath}`,
+        destination: `cypress/fixtures/${desiredDownloadPath}`,
       }).then((result) => {
         cy.log(result);
       });
