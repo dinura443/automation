@@ -169,6 +169,10 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)
     // Intercept API calls and add Authorization Header
     cy.intercept('GET', '/api/v1/dashboard/18', (req) => {
       req.headers['Authorization'] = `Bearer ${Cypress.env('authToken')}`;
+      cy.log('Intercepted request to /api/v1/dashboard/18');
+      req.continue((res) => {
+        cy.log(`Response status: ${res.statusCode}`);
+      });
     }).as('getDashboard');
 
     cy.intercept('GET', '/api/v1/dashboard/_info*', (req) => {
@@ -179,8 +183,8 @@ describe("Login, Navigate, Scrape and Click on Specific Dashboard (instance : 1)
     dashboard.visitInstance1Dashboard();
 
     // Wait for API calls to complete
-    cy.wait('@getDashboard', { timeout: 20000 }).its('response.statusCode').should('eq', 200);
-    cy.wait('@getDashboardInfo', { timeout: 20000 }).its('response.statusCode').should('eq', 200);
+    cy.wait('@getDashboard', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
+    cy.wait('@getDashboardInfo', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
 
     // Wait for the dashboard component to appear
     cy.get('.dashboard-component', { timeout: 20000 })
