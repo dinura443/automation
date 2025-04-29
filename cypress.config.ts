@@ -235,7 +235,7 @@ export default defineConfig({
             return `Error reading YAML file: ${errorMessage}`;
           }
         },
-      });
+      });//k
 
       // Task: Verify Superset files
       on("task", {
