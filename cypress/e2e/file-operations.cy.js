@@ -178,7 +178,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       cy.wait(5000);
 
       dashboard.findRowByItemName(itemName)
-      cy.wait(2000)
+      cy.wait(5000)
         .should("exist")
         .and("be.visible")
         .then(() => {
