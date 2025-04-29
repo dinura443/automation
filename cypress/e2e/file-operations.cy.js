@@ -175,15 +175,16 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       const fileName = `${instanceLabel}_${itemName}_charts.json`;
       const fixturesFilePath = `cypress/fixtures/UIComponents/${fileName}`; 
       cy.log(`Searching for item name: "${itemName}"`);
-      cy.wait(1000);
+      cy.wait(5000);
 
       dashboard.findRowByItemName(itemName)
+      cy.wait(2000)
         .should("exist")
         .and("be.visible")
         .then(() => {
           cy.log(`Found "${itemName}" on the dashboard.`);
           dashboard.clickItemName(itemName);
-          cy.wait(1000);
+          cy.wait(2000);
           cy.log("Waiting for dashboard charts to load...");
           cy.get('.dashboard-component', { timeout: 5000 }).should('exist');
           cy.log("Scraping charts on the specific dashboard...");
