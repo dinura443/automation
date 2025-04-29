@@ -166,7 +166,7 @@ describe("Export the Dashboard ( instance : 1 )", () => {
       cy.wait(1000);
       cy.log("Navigating to dashboard page...");
       dashboard.visitInstance1Dashboard();
-      cy.wait(1000);
+      cy.wait(5000);
   
       const itemName = Cypress.env("dashboard");
       cy.wait(1000);
