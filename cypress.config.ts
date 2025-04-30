@@ -39,8 +39,8 @@ export default defineConfig({
     instance2Dashboard: process.env.INSTANCE2_DASHBOARD,
     datapath: process.env.DASHBOARD_UI,
     backupDir: process.env.BACKUP,
-    rootDir : process.env.ROOT_DIR
-    
+    rootDir : process.env.ROOT_DIR,
+    archiveInstance1: process.env.ARCHIVEINSTANCE1
 
   },
   e2e: {
@@ -135,6 +135,28 @@ export default defineConfig({
             return files.length === 0; 
           } catch (error) {
             throw new Error(`Error checking directory: ${(error as Error).message}`);
+          }
+        },
+      });
+
+      on("task", {
+        deleteFile(targetPath: string) {
+          try {
+            if (!fs.existsSync(targetPath)) {
+              return `File does not exist: ${targetPath}`;
+            }
+
+            // Ensure the target is a file (not a directory)
+            const stat = fs.statSync(targetPath);
+            if (stat.isDirectory()) {
+              return `Path is a directory, not a file: ${targetPath}`;
+            }
+
+            // Delete the file
+            fs.unlinkSync(targetPath);
+            return `Deleted file: ${targetPath}`;
+          } catch (error) {
+            return `Error deleting file: ${(error as Error).message}`;
           }
         },
       });

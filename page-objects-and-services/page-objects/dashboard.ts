@@ -9,16 +9,16 @@ export class DashBoard {
   importButtonSelector = 'button > span[aria-label="import"]';
   selectFileInputSelector = "#modelFile";
   importDialogImportButtonSelector = 'button[type="submit"][data-title="Import"]';
+  dashboardbtn="//a[normalize-space()='Dashboards']";
 
   importbutton = "//span[normalize-space()='Import']";
 
-  visitInstance1Dashboard() {
-    cy.visit(this.instance1Dashboard);
+  visitDashboard() {
+    cy.log("Navigating to the dashboard...");
+    cy.xpath(this.dashboardbtn).click();
+    cy.wait(2000)
   }
 
-  visitInstance2Dashboard() {
-    cy.visit(this.instance2Dashboard);
-  }
 
   findRowByItemName(itemName: string) {
     cy.log(`Searching for item name: "${itemName}"`);
@@ -107,7 +107,6 @@ export class DashBoard {
   }
 
   uploadSpecificFile(targetUrl: string, filePath: string) {
-    cy.visit(targetUrl);
     cy.get(this.importButtonSelector, { timeout: 10000 })
       .should('exist')
       .and('be.visible')
@@ -121,9 +120,9 @@ export class DashBoard {
       fileName: filePath.split('/').pop(),
     });
 
-    cy.xpath(this.importbutton, { timeout: 500000 })
+    cy.xpath(this.importbutton, { timeout: 10000 })
       .should("be.visible")
-      .click({ timeout: 500000 });
+      .click({ timeout: 5000 });
   }
 }
 
