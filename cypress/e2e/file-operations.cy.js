@@ -72,11 +72,12 @@ describe("Export the Dashboard (instance: 1)", () => {
   });
 });
 
+
 describe("Backup the Dashboard File to The Server (instance: 2)", () => {
   const downloadDirectory = Cypress.env("downloadDir");
   const desiredDownloadPath = "backups";
 
-  it("Backing up the dashboard from the instance 1 to the server file", () => {
+  it("Backing up the dashboard from instance 1 to the server file", () => {
     login.visitLoginPage();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
@@ -99,23 +100,22 @@ describe("Backup the Dashboard File to The Server (instance: 2)", () => {
       const fileName = Cypress._.last(latestFilePath.split("/"));
       const originalFilePath = latestFilePath;
       const desiredFilePath = `${desiredDownloadPath}/${fileName}`;
+      
+      // Save the file path to 'upload-path.txt'
+      const fs = require('fs');
+      fs.writeFileSync('upload-path.txt', originalFilePath);
+
+      // Move the file to the desired location
       cy.task("moveFile", {
         source: originalFilePath,
         destination: `cypress/fixtures/${desiredFilePath}`,
       }).then((result) => {
         cy.log(result);
       });
-
-
-      const localPath = 'cypress/fixtures/' + desiredFilePath;
-      const fs = require('fs');
-      fs.writeFileSync('upload-path.txt', localPath);
-      
     });
-
-    cy.log("Backing up the dashboard from the instance 1 completed successfully.");
   });
 });
+
 
 describe("Scrape the dashboard details from the instance1 dashboard (instance: 1)", () => {
   it("Collect the dashboard details and save them to a JSON file in the UIComponents directory", () => {
