@@ -11,8 +11,7 @@ describe("Export the Dashboard (instance: 1)", () => {
   const extractDir = targetDirectory;
 
   it("exporting the file", () => {
-    cy.log('username', Cypress.env('username'));
-
+    cy.log("username : ", Cypress.env("username"));
     cy.log("Logging in...");
     login.visitLoginPage();
     login.enterUsername(Cypress.env("username"));
@@ -61,7 +60,7 @@ describe("Export the Dashboard (instance: 1)", () => {
       }).then((result) => {
         cy.log(result);
       });
-      cy.console("Downloading the dashboard from the instance1 completed successfully.");
+      cy.log("Downloading the dashboard from the instance1 completed successfully.");
     });
   });
 });
@@ -101,7 +100,7 @@ describe("Backup the Dashboard File (instance: 2)", () => {
       });
     });
 
-    cy.console("Backing up the dashboard from the instance 1 completed successfully.");
+    cy.log("Backing up the dashboard from the instance 1 completed successfully.");
   });
 });
 
@@ -144,7 +143,7 @@ describe("Scrape the dashboard details from the instance1 dashboard (instance: 1
       });
       cy.wait(2000);
     });
-    cy.console("Scraping the dashboard details completed successfully.");
+    cy.log("Scraping the dashboard details completed successfully.");
   });
 });
 
@@ -178,7 +177,7 @@ describe("Import the dashboard from the instance2 (instance: 2)", () => {
 
       dashboard.overWriteDashboard();
     });
-    cy.console("Importing the dashboard file from the instance one retrieved from the file instance1Archive completed successfully.");
+    cy.log("Importing the dashboard file from the instance one retrieved from the file instance1Archive completed successfully.");
   });
 });
 
@@ -220,7 +219,7 @@ describe("crape the dashboard details from the instance2 dashboard ( instance : 
         filename: fixturesFilePath, // Save the file in cypress/fixtures
         data: scrapedChartData,
       });
-      cy.console("Scraping the dashboard details completed successfully.");
+      cy.log("Scraping the dashboard details completed successfully.");
       cy.wait(1000);
     });
   });
@@ -288,7 +287,7 @@ describe("Export a dashboard from the instance two for verification purposes ( i
       });
       cy.wait(1000);
     });
-    cy.console("Exporting the dashboard from the instance two completed successfully.");
+    cy.log("Exporting the dashboard from the instance two completed successfully.");
   });
 });
 
