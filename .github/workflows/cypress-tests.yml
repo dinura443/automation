@@ -35,13 +35,22 @@ jobs:
         run: npx cypress run
         continue-on-error: true
 
-      - name: Read backup filename
-        id: read_name
+      - name: Get backup filename
+        id: get_name
         run: |
-          BACKUP_NAME=$(cat cypress/fixtures/filename.txt)
+          BACKUP_NAME=$(ls cypress/fixtures/backups | grep .zip | sort | tail -n 1)
+          echo "Latest backup: $BACKUP_NAME"
           echo "BACKUP_NAME=$BACKUP_NAME" >> $GITHUB_ENV
 
       - name: Upload dashboard backup to server
         run: |
           echo "Uploading $BACKUP_NAME to server..."
-          scp -o StrictHostKeyChecking=no -i AccumeticKey.pem cypress/fixtures/backups/$BACKUP_NAME AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
+          scp -o StrictHostKeyChecking=no -i AccumeticKey.pem \
+            cypress/fixtures/backups/$BACKUP_NAME \
+            AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
+
+      - name: Remove files older than 7 days on server
+        run: |
+          ssh -o StrictHostKeyChecking=no -i AccumeticKey.pem \
+            AccumeticUser@34.71.130.138 \
+            'find /home/AccumeticUser/cypress-backups/backups -type f -mtime +7 -exec rm -f {} \;'
