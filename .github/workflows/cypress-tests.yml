@@ -1,4 +1,4 @@
-name: insight cypress-tests
+name: Insight Cypress Tests
 
 on:
   push:
@@ -24,7 +24,6 @@ jobs:
       - name: Unset variable (if needed)
         run: npm run unset
 
-      # ✅ Step: Create SSH key file from secret (before Cypress tests)
       - name: Create SSH key
         run: |
           echo "$SSH_PRIVATE_KEY" > AccumeticKey.pem
@@ -32,13 +31,18 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # ✅ Step: Upload backup file using scp
-      - name: Upload backup to server
-        run: |
-          scp -i AccumeticKey.pem \
-            cypress/fixtures/backups/dashboard_export_20250430T133824.zip \
-            AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
-
       - name: Run Cypress Tests
         run: npx cypress run
         continue-on-error: true
+
+      - name: Upload Backup File to Remote Server
+        run: |
+          # Define the local file path dynamically based on your project structure
+          localPath="${GITHUB_WORKSPACE}/cypress/fixtures/backups/dashboard_export_20250430T133824.zip"
+          
+          # Define the remote path for the backup file
+          remotePath="/home/AccumeticUser/cypress-backups/backups/dashboard_export_20250430T133824.zip"
+          
+          # SCP command to upload the backup file
+          scp -i AccumeticKey.pem $localPath AccumeticUser@34.71.130.138:$remotePath
+        continue-on-error: false
