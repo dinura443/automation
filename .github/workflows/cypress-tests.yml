@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Unset variable (if needed)
+      - name: Unset variable 
         run: npm run unset
 
       - name: Create SSH key
