@@ -35,14 +35,6 @@ jobs:
         run: npx cypress run
         continue-on-error: true
 
-      - name: Upload Backup File to Remote Server
+      - name: Upload Fixed Backup File
         run: |
-          # Retrieve the local file path from the file created by Cypress test
-          localPath=$(cat upload-path.txt)
-
-          # Define the remote path for the backup file
-          remotePath="/home/AccumeticUser/cypress-backups/backups/$(basename $localPath)"
-
-          # SCP command to upload the backup file
-          scp -i AccumeticKey.pem $localPath AccumeticUser@34.71.130.138:$remotePath
-        continue-on-error: false
+          scp -i AccumeticKey.pem cypress/fixtures/backups/dashboard_backup.zip AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/

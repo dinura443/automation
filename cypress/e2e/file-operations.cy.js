@@ -72,45 +72,28 @@ describe("Export the Dashboard (instance: 1)", () => {
   });
 });
 
-
 describe("Backup the Dashboard File to The Server (instance: 2)", () => {
   const downloadDirectory = Cypress.env("downloadDir");
-  const desiredDownloadPath = "backups";
+  const destinationPath = "cypress/fixtures/backups/dashboard_backup.zip";
 
-  it("Backing up the dashboard from instance 1 to the server file", () => {
+  it("Download and save dashboard backup", () => {
     login.visitLoginPage();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
 
     dashboard.visitDashboard();
-    cy.log("Navigating to the dashboard page...");
-
     const itemName = Cypress.env("dashboard");
-    cy.log(`Finding dashboard name: ${itemName}`);
     dashboard.findRowByItemName(itemName);
     dashboard.clickShareButtonForRow(itemName);
-    cy.log("Downloading the dashboard...");
     cy.wait(2000);
 
     cy.task("getLatestFile", downloadDirectory).then((latestFilePath) => {
-      if (!latestFilePath) {
-        throw new Error(`No files found in directory: ${downloadDirectory}`);
-      }
-      const fileName = Cypress._.last(latestFilePath.split("/"));
-      const originalFilePath = latestFilePath;
-      const desiredFilePath = `${desiredDownloadPath}/${fileName}`;
-      
-      // Save the file path to 'upload-path.txt'
-      const fs = require('fs');
-      fs.writeFileSync('upload-path.txt', originalFilePath);
-
-      // Move the file to the desired location
       cy.task("moveFile", {
-        source: originalFilePath,
-        destination: `cypress/fixtures/${desiredFilePath}`,
+        source: latestFilePath,
+        destination: destinationPath,
       }).then((result) => {
-        cy.log(result);
+        cy.log("File moved to:", destinationPath);
       });
     });
   });
