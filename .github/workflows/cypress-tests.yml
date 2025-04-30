@@ -27,3 +27,16 @@ jobs:
       - name: Run Cypress Tests
         run: npx cypress run
         continue-on-error: true
+
+      # ✅ Step 1: Create SSH key from GitHub Secret
+      - name: Create SSH key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > AccumeticKey.pem
+          chmod 600 AccumeticKey.pem
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # ✅ Step 2: Upload backup file to remote server via SCP
+      - name: Upload backup to server
+        run: |
+          scp -i AccumeticKey.pem cypress/fixtures/backups/dashboard_export_20250430T133824.zip AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
