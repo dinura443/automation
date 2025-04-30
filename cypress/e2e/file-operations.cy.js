@@ -89,13 +89,26 @@ describe("Backup the Dashboard File to The Server (instance: 2)", () => {
     cy.wait(2000);
 
     cy.task("getLatestFile", downloadDirectory).then((latestFilePath) => {
+      if (!latestFilePath) {
+        throw new Error(`No files found in directory: ${downloadDirectory}`);
+      }
+    
+      const fileName = Cypress._.last(latestFilePath.split("/"));
+      const originalFilePath = latestFilePath;
+      const destinationPath = `cypress/fixtures/backups/${fileName}`;
+    
+      // Save file to the backup folder with the same name
       cy.task("moveFile", {
-        source: latestFilePath,
+        source: originalFilePath,
         destination: destinationPath,
       }).then((result) => {
-        cy.log("File moved to:", destinationPath);
+        cy.log(result);
       });
+    
+      // Save filename for GitHub Actions to pick up later
+      cy.writeFile("cypress/fixtures/filename.txt", fileName);
     });
+    
   });
 });
 
@@ -143,7 +156,7 @@ describe("Scrape the dashboard details from the instance1 dashboard (instance: 1
   });
 });
 
-describe("Import the dashboard from the instance2 (instance: 2)", () => {
+describe("Import the dashboard from the instance1 (instance: 2)", () => {
   const targetUrl = Cypress.env("instance2Dashboard");
   const dashboardInstance1Archive = Cypress.env("archiveInstance1");
   const desiredDownloadPath = "instance1Archive";
