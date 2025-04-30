@@ -104,7 +104,7 @@ describe("Back the Dashboard File to The Server (instance: 2)", () => {
         cy.log(result);
       });
       const localPath = `cypress/fixtures/${desiredFilePath}`; 
-      const remotePath = `/home/AccumeticUser/cypress-backups/${fileName}`;
+      const remotePath = `/home/AccumeticUser/cypress-backups/backups/${fileName}`;
 
       cy.exec(`scp -i AccumeticKey.pem ${localPath} AccumeticUser@34.71.130.138:${remotePath}`)
       .then((result) => {
