@@ -1,4 +1,4 @@
-name: Insight Cypress Tests
+name: insight cypress-tests
 
 on:
   push:
@@ -35,6 +35,9 @@ jobs:
         run: npx cypress run
         continue-on-error: true
 
-      - name: Upload Fixed Backup File
+      - name: Upload Backup to Remote Server
         run: |
-          scp -i AccumeticKey.pem cypress/fixtures/backups/dashboard_backup.zip AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
+          scp -i AccumeticKey.pem \
+              -o StrictHostKeyChecking=no \
+              cypress/fixtures/backups/dashboard_backup.zip \
+              AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
