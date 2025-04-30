@@ -54,6 +54,24 @@ export class DashBoard {
       });
   }
 
+overWriteDashboard() {
+
+  const overwriteInputSelector = '#overwrite';
+  const overwriteButtonSelector = 'button:contains("Overwrite")';
+
+
+  cy.get(overwriteInputSelector).type('OVERWRITE');
+  cy.log('Typed "OVERWRITE" into the input field.');
+
+  cy.get(overwriteButtonSelector)
+  .should('exist')
+  .and('be.visible')
+  .click();
+  cy.log('Clicked the "Overwrite" button.');
+
+
+}
+
   getDashboardCharts(itemName: string) {
     const scrapedCharts: any[] = [];
 

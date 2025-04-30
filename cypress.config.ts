@@ -20,12 +20,6 @@ export default defineConfig({
     openMode: 0,
   },
   env: {
-
-    archiveDir: "archives",
-
-    
-
-    
     username: process.env.USERNAME,
     password: process.env.PASSWORD,
     dashboard: process.env.DASHBOARD_NAME,
@@ -44,8 +38,8 @@ export default defineConfig({
 
   },
   e2e: {
-    video: true, // Ensure videos are enabled
-    screenshotOnRunFailure: true, // Ensure screenshots are generated on failure
+    video: true, 
+    screenshotOnRunFailure: true, 
     fixturesFolder: "cypress/fixtures",
     downloadsFolder: "cypress/downloads",
     defaultCommandTimeout: 3000,
