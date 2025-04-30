@@ -97,7 +97,6 @@ describe("Backup the Dashboard File to The Server (instance: 2)", () => {
       const originalFilePath = latestFilePath;
       const destinationPath = `cypress/fixtures/backups/${fileName}`;
     
-      // Save file to the backup folder with the same name
       cy.task("moveFile", {
         source: originalFilePath,
         destination: destinationPath,
@@ -105,7 +104,6 @@ describe("Backup the Dashboard File to The Server (instance: 2)", () => {
         cy.log(result);
       });
     
-      // Save filename for GitHub Actions to pick up later
       cy.writeFile("cypress/fixtures/filename.txt", fileName);
     });
     

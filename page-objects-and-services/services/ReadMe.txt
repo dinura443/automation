@@ -1,1 +1,0 @@
-In this directory, the functions are stored used for API requests, data extraction from API requests.
