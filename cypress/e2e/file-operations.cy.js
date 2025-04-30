@@ -63,10 +63,6 @@ describe("Export the Dashboard (instance: 1)", () => {
       });
 
 
-      const localPath = 'cypress/fixtures/' + desiredFilePath;
-      const fs = require('fs');
-      fs.writeFileSync('upload-path.txt', localPath);
-
 
       
     
@@ -76,7 +72,7 @@ describe("Export the Dashboard (instance: 1)", () => {
   });
 });
 
-describe("Back the Dashboard File to The Server (instance: 2)", () => {
+describe("Backup the Dashboard File to The Server (instance: 2)", () => {
   const downloadDirectory = Cypress.env("downloadDir");
   const desiredDownloadPath = "backups";
 
@@ -109,6 +105,11 @@ describe("Back the Dashboard File to The Server (instance: 2)", () => {
       }).then((result) => {
         cy.log(result);
       });
+
+
+      const localPath = 'cypress/fixtures/' + desiredFilePath;
+      const fs = require('fs');
+      fs.writeFileSync('upload-path.txt', localPath);
       
     });
 
