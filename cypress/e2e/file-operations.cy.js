@@ -62,6 +62,12 @@ describe("Export the Dashboard (instance: 1)", () => {
         cy.log(result);
       });
 
+
+      const localPath = 'cypress/fixtures/' + desiredFilePath;
+      const fs = require('fs');
+      fs.writeFileSync('upload-path.txt', localPath);
+
+
       
     
       cy.log("Downloading the dashboard from the instance1 completed successfully.");

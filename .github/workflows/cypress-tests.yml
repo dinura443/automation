@@ -37,12 +37,12 @@ jobs:
 
       - name: Upload Backup File to Remote Server
         run: |
-          # Define the local file path dynamically based on your project structure
-          localPath="${GITHUB_WORKSPACE}/cypress/fixtures/backups/dashboard_export_20250430T133824.zip"
-          
+          # Retrieve the local file path from the file created by Cypress test
+          localPath=$(cat upload-path.txt)
+
           # Define the remote path for the backup file
-          remotePath="/home/AccumeticUser/cypress-backups/backups/dashboard_export_20250430T133824.zip"
-          
+          remotePath="/home/AccumeticUser/cypress-backups/backups/$(basename $localPath)"
+
           # SCP command to upload the backup file
           scp -i AccumeticKey.pem $localPath AccumeticUser@34.71.130.138:$remotePath
         continue-on-error: false
