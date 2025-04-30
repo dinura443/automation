@@ -14,7 +14,7 @@ describe("Export the Dashboard (instance: 1)", () => {
   it("exporting the file", () => {
     cy.log("username : ", Cypress.env("username"));
     cy.log("Logging in...");
-    login.visitLoginPage();
+    login.visitInstance1();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
@@ -62,10 +62,6 @@ describe("Export the Dashboard (instance: 1)", () => {
         cy.log(result);
       });
 
-
-
-      
-    
       cy.log("Downloading the dashboard from the instance1 completed successfully.");
     });
 
@@ -74,10 +70,9 @@ describe("Export the Dashboard (instance: 1)", () => {
 
 describe("Backup the Dashboard File to The Server (instance: 2)", () => {
   const downloadDirectory = Cypress.env("downloadDir");
-  const destinationPath = "cypress/fixtures/backups/dashboard_backup.zip";
 
   it("Download and save dashboard backup", () => {
-    login.visitLoginPage();
+    login.visitInstance2();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
@@ -114,7 +109,7 @@ describe("Backup the Dashboard File to The Server (instance: 2)", () => {
 describe("Scrape the dashboard details from the instance1 dashboard (instance: 1)", () => {
   it("Collect the dashboard details and save them to a JSON file in the UIComponents directory", () => {
     cy.log("Logging in...");
-    login.visitLoginPage();
+    login.visitInstance1();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
@@ -161,7 +156,7 @@ describe("Import the dashboard from the instance1 (instance: 2)", () => {
 
   it("Importing the dashboard file from the instance one retrieved from the file instance1Archive", () => {
     cy.log("Logging in...");
-    login.visitHostedLoginPage();
+    login.visitInstance2();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
@@ -197,10 +192,12 @@ describe("crape the dashboard details from the instance2 dashboard ( instance : 
 
   it("Collect the dashboard details and save them to a json file in the UIComponents directory ", () => {
     cy.log("Logging in...");
-    login.visitHostedLoginPage();
+    login.visitInstance2();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
+    cy.wait(2000);
+
 
 
     dashboard.visitDashboard();
@@ -223,11 +220,10 @@ describe("crape the dashboard details from the instance2 dashboard ( instance : 
 
     dashboard.getDashboardCharts(itemName).then((scrapedChartData) => {
       cy.task('writeJson', {
-        filename: fixturesFilePath, // Save the file in cypress/fixtures
+        filename: fixturesFilePath, 
         data: scrapedChartData,
       });
       cy.log("Scraping the dashboard details completed successfully.");
-      cy.wait(1000);
     });
   });
 });
@@ -242,10 +238,12 @@ describe("Export a dashboard from the instance two for verification purposes ( i
 
   it("export a file to the file dashboard_instance2", () => {
     cy.log("Logging in...");
-    login.visitHostedLoginPage();
+    login.visitInstance2();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
     login.clickLoginButton();
+    cy.wait(2000);
+
 
     dashboard.visitDashboard();
     cy.log("Navigating to the dashboard page...");
@@ -297,6 +295,8 @@ describe("Export a dashboard from the instance two for verification purposes ( i
     cy.log("Exporting the dashboard from the instance two completed successfully.");
   });
 });
+
+
 
 
 
