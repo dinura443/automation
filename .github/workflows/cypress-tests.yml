@@ -1,4 +1,4 @@
-name: insight cypress-tests
+name: Cypress Dashboard Backup
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  backup:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,9 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Unset variable (if needed)
-        run: npm run unset
-
       - name: Create SSH key
         run: |
           echo "$SSH_PRIVATE_KEY" > AccumeticKey.pem
@@ -31,13 +28,11 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Run Cypress Tests
-        run: npx cypress run
-        continue-on-error: true
+      - name: Run Cypress test and move dashboard
+        run: npx cypress run --spec cypress/e2e/file-operations.cy.js
 
-      - name: Upload Backup to Remote Server
+      - name: Upload backup to server (keep original name)
         run: |
-          scp -i AccumeticKey.pem \
-              -o StrictHostKeyChecking=no \
-              cypress/fixtures/backups/dashboard_backup.zip \
-              AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
+          FILE=$(ls -t cypress/fixtures/backups/*.zip | head -n1)
+          scp -i AccumeticKey.pem -o StrictHostKeyChecking=no "$FILE" AccumeticUser@34.71.130.138:/home/AccumeticUser/cypress-backups/backups/
+
