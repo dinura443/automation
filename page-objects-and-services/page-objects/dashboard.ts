@@ -15,8 +15,9 @@ export class DashBoard {
 
   visitDashboard() {
     cy.log("Navigating to the dashboard...");
-    cy.xpath(this.dashboardbtn).click();
     cy.wait(2000)
+
+    cy.xpath(this.dashboardbtn).click();
   }
 
 

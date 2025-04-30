@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { VerifyExporter } from "./page-objects-and-services/page-objects/file-Verification";
 import { UiVerifier } from "./page-objects-and-services/page-objects/ui-Verification";
+const { NodeSSH } = require('node-ssh');
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ export default defineConfig({
 
 
 
+     
       on("task", {
         compareJsonFiles({ file1, file2 }) {
           try {
@@ -308,30 +310,7 @@ export default defineConfig({
         },
       });
 
-on("task", {
-  deleteOldBackupFiles(backupsDir: string) {
-    try {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - 7); 
 
-      const files = fs.readdirSync(backupsDir);
-
-      files.forEach((file) => {
-        const filePath = path.join(backupsDir, file);
-        const stat = fs.statSync(filePath);
-
-        if (stat.isFile() && stat.mtime < cutoffDate) {
-          console.log(`Deleting old backup file: ${filePath}`);
-          fs.unlinkSync(filePath); 
-        }
-      });
-
-      return "Old backup files deleted successfully.";
-    } catch (error) {
-      return `Error deleting old backup files: ${(error as Error).message}`;
-    }
-  },
-});
 
       on("task", {
         verifyUiContents({ dataPath, itemName }) {

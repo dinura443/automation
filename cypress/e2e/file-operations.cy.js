@@ -4,6 +4,7 @@ import { DashBoard } from "../../page-objects-and-services/page-objects/dashboar
 const login = new LoginPage();
 const dashboard = new DashBoard();
 
+
 describe("Export the Dashboard (instance: 1)", () => {
   const downloadDirectory = Cypress.env("downloadDir");
   const targetDirectory = Cypress.env("instance1DashboardDir");
@@ -60,16 +61,20 @@ describe("Export the Dashboard (instance: 1)", () => {
       }).then((result) => {
         cy.log(result);
       });
+
+      
+    
       cy.log("Downloading the dashboard from the instance1 completed successfully.");
     });
+
   });
 });
 
-describe("Backup the Dashboard File (instance: 2)", () => {
+describe("Back the Dashboard File to The Server (instance: 2)", () => {
   const downloadDirectory = Cypress.env("downloadDir");
   const desiredDownloadPath = "backups";
 
-  it("Backing up the dashboard from the instance 1 to the backups file", () => {
+  it("Backing up the dashboard from the instance 1 to the server file", () => {
     login.visitLoginPage();
     login.enterUsername(Cypress.env("username"));
     login.enterPassword(Cypress.env("password"));
@@ -97,6 +102,17 @@ describe("Backup the Dashboard File (instance: 2)", () => {
         destination: `cypress/fixtures/${desiredFilePath}`,
       }).then((result) => {
         cy.log(result);
+      });
+      const localPath = `cypress/fixtures/${desiredFilePath}`; 
+      const remotePath = `/home/AccumeticUser/cypress-backups/${fileName}`;
+
+      cy.exec(`scp -i AccumeticKey.pem ${localPath} AccumeticUser@34.71.130.138:${remotePath}`)
+      .then((result) => {
+        if (result.code === 0) {
+          console.log('File uploaded successfully!');
+        } else {
+          console.error('Error uploading file:', result.stderr);
+        }
       });
     });
 
